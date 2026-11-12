@@ -2,7 +2,7 @@
 
 Compare Azure API Management and the new standalone Azure AI Gateway using OpenCode and three identical model deployments. Measure whether independent sessions are distributed and each conversation stays on one backend without cookies.
 
-**Results:** APIM provided cookie-free session affinity and recovered from the tested failures. The standalone gateway's tested pool switched backends within sessions and failed the isolated DNS-outage test. Cached-token reuse remained high with standard balancing too; a cache-saving advantage was not demonstrated with the tested Global Standard model.
+**Results:** APIM's configurable policies delivered the required cookie-free session routing and tested recovery. Standalone AI Gateway has a documented native session-affinity setting identified during follow-up research; the original measurements covered ordinary pools with that setting disabled. Its native configuration awaits a separate runtime test. A cache-saving advantage from affinity was not demonstrated with this Global Standard model.
 
 - [Readable lab report](docs/REPORT.md)
 - [Specification](SPECIFICATION.md)
@@ -56,6 +56,8 @@ Run each command once, or run the six combinations in separate PowerShell proces
 
 Defaults are 60 sessions, six turns, and 36 requests/minute per case. Turns remain ordered within each session. Standard-balancing cases omit session headers; affinity/probe cases send the four OpenCode headers. The standalone alias called `sticky` probes whether those headers influence routing; its configured pool has the same weights as `balanced`.
 
+**Native affinity is disabled in this historical reproduction.** To evaluate the documented feature, create a separate alias in the AI Gateway portal and follow the [OpenCode session-affinity configuration](docs/REPORT.md#native-ai-gateway-configuration). Keep those new results separate from the checked-in pool probes.
+
 The APIM `single` route prefers b1 and retains the common recovery policy. Check its actual backend distribution before treating a run as a strict one-backend reference. The original measured reference served all 360 requests on b1; the later repeat recovered seven calls through other backends.
 
 **Keep fault injection separate from comparison runs.** It temporarily changes a lab backend and can affect other aliases using that backend.
@@ -77,7 +79,7 @@ node .\scripts\opencode-check.mjs mock
 
 Observer mode forwards the unmodified model request through a loopback metadata recorder. Direct mode uses ordinary OpenCode provider settings. Each validation run keeps its own raw outputs and verifies the completed `ACK` response, session continuation, and a new session. The mock returns a cookie to test whether the client sends it back.
 
-Fault scripts restore their endpoint in `finally`. A failed acceptance check returns a nonzero exit code and retains evidence. The isolated native transport probe is expected to fail on the tested preview: 12 requests returned HTTP 500. It creates a fresh provider/alias so earlier HTTP faults cannot pre-eject the primary backend.
+Fault scripts restore their endpoint in `finally`. An unmet acceptance check returns a nonzero exit code and retains evidence. The recorded isolated native transport probe returned HTTP 500 for 12 requests; reruns should record their actual outcomes. It uses a fresh provider/alias to isolate health state from earlier HTTP-error tests.
 
 ### Exact configuration locations
 
@@ -87,6 +89,7 @@ Fault scripts restore their endpoint in `finally`. A failed acceptance check ret
 | APIM policy | API-level `policy` on APIs `single`, `balanced`, and `sticky`; templates in [policies](policies/). |
 | APIM model endpoints | Backend entities `b1`, `b2`, `b3`; pool `pool`; named values `lab-endpoint-b1`, `lab-endpoint-b2`, `lab-endpoint-b3`, populated from private state. |
 | Native gateway routing | Workspace `default`; Foundry providers `b1`/`b2`/`b3`; model registration `lab-chat`; aliases `gpt-5-nano-single`, `gpt-5-nano-balanced`, `gpt-5-nano-sticky`. |
+| Native affinity follow-up | AI Gateway portal, workspace `default`, dedicated alias `gpt-5-nano-affinity`: **Session affinity** expression reads `x-opencode-session`; **Routing order** is **Session affinity before priority**. Not enabled by the reproduction script. |
 | Native client path | `/default/models/openai/v1/chat/completions`; request `model` selects the alias. |
 | OpenCode APIM provider | [Example configuration](examples/opencode-apim.json): `providers.lab.settings.baseURL`, `providers.lab.headers.Ocp-Apim-Subscription-Key`, `model`. |
 | OpenCode native provider | [Example configuration](examples/opencode-aigateway.json): `providers.lab.settings.baseURL`, `providers.lab.settings.apiKey`, `model`. |
@@ -117,6 +120,7 @@ The checked-in results contain both full comparison rounds. The first used twelv
 - Publish only reviewed, sanitized results. Never add Azure token caches or `.lab` to version control.
 - Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing).
 - No license is currently specified for the original lab content.
+- Azure service icons in the diagram retain Microsoft's artwork and follow the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).
 
 ## Cleanup
 
@@ -133,6 +137,7 @@ The recorded execution's cleanup status is in [lifecycle evidence](results/lifec
 ## References
 
 - [Standalone Azure AI Gateway overview](https://learn.microsoft.com/azure/ai-gateway/overview)
+- [Native session affinity](https://ai.gateway.azure.com/docs/models/session-affinity) and [configuration guide](https://ai.gateway.azure.com/docs/models/guides/configure-session-affinity)
 - [Official AI Gateway CLI](https://github.com/Azure/aigateway/tree/main/cli)
 - [API Management backends](https://learn.microsoft.com/azure/api-management/backends)
 - [Azure OpenAI prompt caching](https://learn.microsoft.com/azure/foundry/openai/how-to/prompt-caching)

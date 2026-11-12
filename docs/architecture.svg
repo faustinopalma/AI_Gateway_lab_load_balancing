@@ -1,69 +1,104 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1120" height="660" viewBox="0 0 1120 660">
-  <title>LLM session-affinity laboratory: two gateways, the same three model backends</title>
-  <desc>OpenCode and a controlled test driver call APIM and the standalone Azure AI Gateway separately. Both configurations use the same three independently addressable model deployments.</desc>
+  <title>Two gateway configurations share three Azure OpenAI model backends</title>
+  <desc>OpenCode and a repeatable test driver connect to Azure API Management or standalone Azure AI Gateway in separate runs. Straight connectors lead to the same group of three Azure OpenAI deployments. Service icons retain the original Microsoft Azure artwork.</desc>
   <defs>
-    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#52657d"/></marker>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#52657d"/></marker>
+    <symbol id="azure-apim-icon" viewBox="0 0 18 18">
+      <defs>
+        <linearGradient id="apim-cloud" x1="9" y1="16.82" x2="9" y2="1.18" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#198ab3"/><stop offset="0.09" stop-color="#1f9dc4"/><stop offset="0.24" stop-color="#28b5d9"/><stop offset="0.4" stop-color="#2dc6e9"/><stop offset="0.57" stop-color="#31d1f2"/><stop offset="0.78" stop-color="#32d4f5"/></linearGradient>
+        <linearGradient id="apim-node" x1="8.36" y1="11.35" x2="8.36" y2="14.46" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c69aeb"/><stop offset="1" stop-color="#6f4bb2"/></linearGradient>
+      </defs>
+      <path d="M14.18,5.89A4.85,4.85,0,0,0,9.23,1.18,5,5,0,0,0,4.48,4.47,4.61,4.61,0,0,0,.5,9,4.67,4.67,0,0,0,5.29,13.5a3,3,0,0,0,.42,0h1.2a1.47,1.47,0,0,1-.11-.56v0A1.51,1.51,0,0,1,7,12.21H5.6l-.31,0A3.41,3.41,0,0,1,1.77,9,3.33,3.33,0,0,1,4.68,5.73l.76-.12.25-.73A3.73,3.73,0,0,1,9.23,2.45,3.6,3.6,0,0,1,12.91,5.9V7L14,7.15a2.59,2.59,0,0,1,2.26,2.49,2.63,2.63,0,0,1-2.62,2.54h-.15l-.08,0h-1A3.92,3.92,0,0,0,8.54,9a.64.64,0,1,0,0,1.27,2.65,2.65,0,0,1,0,5.29.64.64,0,1,0,0,1.27,3.92,3.92,0,0,0,3.87-3.34h1.05a.64.64,0,0,0,.2,0A3.91,3.91,0,0,0,17.5,9.64,3.86,3.86,0,0,0,14.18,5.89Z" fill="url(#apim-cloud)"/>
+      <rect x="6.8" y="11.35" width="3.12" height="3.12" rx="1.54" fill="url(#apim-node)"/>
+    </symbol>
+    <symbol id="azure-aigateway-icon" viewBox="0 0 18 18">
+      <defs>
+        <clipPath id="aigateway-clip"><rect x=".38" y=".38" width="17.25" height="17.25" fill="none"/></clipPath>
+        <linearGradient id="aigateway-left" x1="-611.4" y1="-205.23" x2="-611.4" y2="-224.06" gradientTransform="translate(617.13 -205.76) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3bd5ff"/><stop offset=".37" stop-color="#0fafff"/><stop offset=".71" stop-color="#9c6cfe"/><stop offset="1" stop-color="#bb45ea"/></linearGradient>
+        <linearGradient id="aigateway-right" x1="-604.85" y1="-207.94" x2="-604.85" y2="-224.5" gradientTransform="translate(617.13 -205.76) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#0078d4"/><stop offset=".32" stop-color="#0094f0"/><stop offset=".65" stop-color="#6864f6"/><stop offset="1" stop-color="#a931d8"/></linearGradient>
+        <radialGradient id="aigateway-center" cx="114.65" cy="-115.18" fx="114.65" fy="-115.18" r=".96" gradientTransform="translate(9.87 -881.72) rotate(45) scale(5.47 -5.47)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#29c3ff"/><stop offset=".23" stop-color="#4894fe"/><stop offset=".5" stop-color="#6864f6"/><stop offset=".89" stop-color="#a931d8"/></radialGradient>
+      </defs>
+      <g clip-path="url(#aigateway-clip)">
+        <path d="M11.02,1.15c-.55-.5-1.26-.78-2.02-.78-.81,0-1.56.31-2.13.88L1.26,6.87c-.57.57-.88,1.32-.88,2.13s.31,1.56.88,2.13l2.77,2.77,1.2,1.2c.83.83,2.12.94,3.07.33.05-.03.08-.08.08-.13,0-.05-.01-.11-.05-.15l-5.55-5.55c-.16-.16-.25-.38-.25-.6s.09-.44.25-.6l3.8-3.8,1.82-1.82.39-.38c.59-.59,1.35-.9,2.12-.93.08,0,.14-.05.17-.12.02-.07,0-.15-.05-.19Z" fill="url(#aigateway-left)"/>
+        <path d="M16.74,6.87l-3.97-3.97c-.83-.83-2.12-.94-3.07-.33-.05.03-.08.08-.08.13,0,.05.01.11.05.15l5.55,5.55c.16.16.25.38.25.6s-.09.44-.25.6l-3.8,3.79-1.82,1.82-.39.38c-.59.59-1.34.89-2.11.93h-.01c-.07,0-.14.05-.16.12-.03.07,0,.15.05.19.55.5,1.27.78,2.02.78.8,0,1.56-.31,2.13-.88l5.62-5.62c.57-.57.88-1.32.88-2.13s-.31-1.56-.88-2.13Z" fill="url(#aigateway-right)"/>
+        <path d="M9,11.59c1.43,0,2.59-1.16,2.59-2.59s-1.16-2.59-2.59-2.59-2.59,1.16-2.59,2.59,1.16,2.59,2.59,2.59Z" fill="url(#aigateway-center)"/>
+      </g>
+    </symbol>
+    <symbol id="azure-openai-icon" viewBox="0 0 18 18">
+      <defs><radialGradient id="openai-blue" cx="-67.981" cy="793.199" r=".45" gradientTransform="translate(-17939.03 20368.029) rotate(45) scale(25.091 -34.149)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#83b9f9"/><stop offset="1" stop-color="#0078d4"/></radialGradient></defs>
+      <path d="m0,2.7v12.6c0,1.491,1.209,2.7,2.7,2.7h12.6c1.491,0,2.7-1.209,2.7-2.7V2.7c0-1.491-1.209-2.7-2.7-2.7H2.7C1.209,0,0,1.209,0,2.7ZM10.8,0v3.6c0,3.976,3.224,7.2,7.2,7.2h-3.6c-3.976,0-7.199,3.222-7.2,7.198v-3.598c0-3.976-3.224-7.2-7.2-7.2h3.6c3.976,0,7.2-3.224,7.2-7.2Z" fill="url(#openai-blue)" stroke-width="0"/>
+    </symbol>
     <style>
       text { font-family: Arial, sans-serif; fill: #18304a; }
       .title { font-size: 29px; font-weight: bold; }
       .heading { font-size: 20px; font-weight: bold; }
       .body { font-size: 16px; }
       .small { font-size: 14px; fill: #52657d; }
-      .box { stroke-width: 2; rx: 14; }
-      .link { fill: none; stroke: #52657d; stroke-width: 2; marker-end: url(#arrow); }
+      .box { stroke-width: 1.6; }
+      .link { stroke: #52657d; stroke-width: 2; marker-end: url(#arrow); }
     </style>
   </defs>
   <rect width="1120" height="660" fill="#f6f9fc"/>
-  <text class="title" x="42" y="52">One conversation, one backend</text>
-  <text class="body" x="42" y="83">Compare APIM and the new standalone Azure AI Gateway with the same workload.</text>
+  <text class="title" x="42" y="52">One workload, two gateway configurations</text>
+  <text class="body" x="42" y="83">The same OpenCode sessions and model backends are used in separate test runs.</text>
   <rect x="34" y="112" width="1052" height="452" rx="18" fill="#ffffff" stroke="#d4dee8"/>
-  <text class="small" x="62" y="144">CLIENTS</text>
-  <text class="small" x="384" y="144">GATEWAYS - TESTED SEPARATELY</text>
-  <text class="small" x="824" y="144">MODEL BACKENDS</text>
-  <g id="clients">
-    <rect class="box" x="62" y="236" width="232" height="166" fill="#eaf0f8" stroke="#91a8c1"/>
-    <text class="heading" x="86" y="271">OpenCode CLI</text>
-    <text class="body" x="86" y="300">Real conversations</text>
-    <path d="M86 317 H267" stroke="#b5c5d6"/>
-    <text class="heading" x="86" y="345">Test driver</text>
-    <text class="body" x="86" y="374">Repeatable measurements</text>
+  <text class="small" x="62" y="146">CLIENTS</text>
+  <text class="small" x="374" y="146">GATEWAYS - TESTED SEPARATELY</text>
+  <text class="small" x="794" y="146">SHARED MODEL BACKENDS</text>
+  <g id="connections" inkscape:label="Straight connectors">
+    <line class="link" x1="294" y1="285" x2="372" y2="247"/>
+    <line class="link" x1="294" y1="375" x2="372" y2="419"/>
+    <line class="link" x1="688" y1="247" x2="792" y2="247"/>
+    <line class="link" x1="688" y1="419" x2="792" y2="419"/>
   </g>
-  <g id="apim">
-    <rect class="box" x="382" y="184" width="302" height="110" fill="#e7f2ff" stroke="#2b78bd"/>
-    <text class="heading" x="404" y="217">Azure API Management</text>
-    <text class="body" x="404" y="246">Native pool + custom affinity</text>
-    <text class="small" x="404" y="273">Basic v2 / managed identity</text>
+  <g id="clients" inkscape:label="OpenCode and test driver">
+    <rect class="box" x="62" y="245" width="232" height="170" rx="12" fill="#eaf0f8" stroke="#91a8c1"/>
+    <text class="heading" x="86" y="281">OpenCode CLI</text>
+    <text class="body" x="86" y="310">Real conversations</text>
+    <line x1="86" y1="329" x2="270" y2="329" stroke="#c3d1df"/>
+    <text class="heading" x="86" y="358">Test driver</text>
+    <text class="body" x="86" y="387">Repeatable measurements</text>
   </g>
-  <g id="aigateway">
-    <rect class="box" x="382" y="362" width="302" height="110" fill="#e9f5ef" stroke="#438667"/>
-    <text class="heading" x="404" y="395">Standalone AI Gateway</text>
-    <text class="body" x="404" y="424">Native model-alias routing</text>
-    <text class="small" x="404" y="451">Preview / managed identity</text>
+  <g id="apim" inkscape:label="Azure API Management">
+    <rect class="box" x="372" y="190" width="316" height="114" rx="12" fill="#edf5ff" stroke="#7ca9d4"/>
+    <use id="apim-service-icon" href="#azure-apim-icon" x="390" y="203" width="50" height="50"/>
+    <text class="heading" x="452" y="222">Azure API Management</text>
+    <text class="small" x="452" y="245">Basic v2</text>
+    <text class="body" x="390" y="280">Policy-based session routing</text>
   </g>
-  <g id="backends">
-    <rect class="box" x="820" y="177" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
-    <text class="heading" x="843" y="211">Backend 1</text>
-    <text class="body" x="843" y="241">Independent deployment</text>
-    <rect class="box" x="820" y="289" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
-    <text class="heading" x="843" y="323">Backend 2</text>
-    <text class="body" x="843" y="353">Independent deployment</text>
-    <rect class="box" x="820" y="401" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
-    <text class="heading" x="843" y="435">Backend 3</text>
-    <text class="body" x="843" y="465">Independent deployment</text>
+  <g id="aigateway" inkscape:label="Standalone Azure AI Gateway">
+    <rect class="box" x="372" y="362" width="316" height="114" rx="12" fill="#f3f0ff" stroke="#a49ad1"/>
+    <use id="aigateway-service-icon" href="#azure-aigateway-icon" x="390" y="377" width="50" height="50"/>
+    <text class="heading" x="452" y="396">Azure AI Gateway</text>
+    <text class="small" x="452" y="419">Standalone preview</text>
+    <text class="body" x="390" y="452">Model-alias routing</text>
   </g>
-  <g id="connections">
-    <path class="link" d="M294 277 H332 V239 H382"/>
-    <path class="link" d="M294 363 H332 V417 H382"/>
-    <path class="link" d="M684 215 H752 V204 H820"/>
-    <path class="link" d="M684 239 H735 V316 H820"/>
-    <path class="link" d="M684 264 H718 V428 H820"/>
-    <path class="link" d="M684 392 H776 V241 H820"/>
-    <path class="link" d="M684 417 H759 V353 H820"/>
-    <path class="link" d="M684 442 H742 V465 H820"/>
+  <g id="backends" inkscape:label="The same three Azure OpenAI accounts">
+    <rect class="box" x="792" y="176" width="264" height="344" rx="14" fill="#f7fafc" stroke="#b9c9d8"/>
+    <text class="body" x="810" y="203">Three Azure OpenAI accounts</text>
+    <g id="backend-1">
+      <rect x="810" y="220" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
+      <use id="backend-1-icon" href="#azure-openai-icon" x="826" y="238" width="44" height="44"/>
+      <text class="heading" x="886" y="251">Backend 1</text>
+      <text class="small" x="886" y="274">gpt-5-nano</text>
+    </g>
+    <g id="backend-2">
+      <rect x="810" y="314" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
+      <use id="backend-2-icon" href="#azure-openai-icon" x="826" y="332" width="44" height="44"/>
+      <text class="heading" x="886" y="345">Backend 2</text>
+      <text class="small" x="886" y="368">gpt-5-nano</text>
+    </g>
+    <g id="backend-3">
+      <rect x="810" y="408" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
+      <use id="backend-3-icon" href="#azure-openai-icon" x="826" y="426" width="44" height="44"/>
+      <text class="heading" x="886" y="439">Backend 3</text>
+      <text class="small" x="886" y="462">gpt-5-nano</text>
+    </g>
+    <text class="small" x="810" y="509">Same model and deployment name</text>
   </g>
-  <text class="small" x="62" y="534">Same model and deployment name on all backends. Session headers identify conversations; no client cookies.</text>
-  <text class="heading" x="42" y="602">Measure three things</text>
-  <text class="body" x="42" y="631">Session distribution</text>
-  <text class="body" x="337" y="631">Backend switches within a session</text>
-  <text class="body" x="768" y="631">Cached input tokens</text>
+  <text class="small" x="62" y="542">Session headers identify conversations; no client cookies. Gateway-to-model authentication uses managed identity.</text>
+  <text class="heading" x="42" y="601">What we measure</text>
+  <text class="body" x="42" y="632">Session distribution</text>
+  <text class="body" x="352" y="632">Backend consistency within a session</text>
+  <text class="body" x="798" y="632">Cached input tokens</text>
 </svg>

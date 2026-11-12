@@ -31,6 +31,7 @@ foreach ($backend in $state.backends) {
     $model = Invoke-AzJson $modelArgs
     $modelIds += $model.id
 }
+# Preserve the measured header-only probe; native session affinity needs a separate alias.
 foreach ($scenario in @('single','balanced','sticky')) {
     $targets = if ($scenario -eq 'single') { @($modelIds[0]) } else { $modelIds }
     $pool = Write-PrivateJson "alias-$scenario.json" @($targets | ForEach-Object {
@@ -54,7 +55,7 @@ if ($gateway.properties.frontend.defaultHostname) {
 } else { throw 'No documented runtime endpoint was returned by the standalone gateway.' }
 $state.aiGateway.chatUrl = "$base/default/models/openai/v1/chat/completions"
 $state.aiGateway.modelRegistrations = $modelIds
-$state.aiGateway.affinityProbe = 'The installed CLI exposes priority/weight routing; sticky is a header-affinity probe on an equal-weight alias.'
+$state.aiGateway.affinityProbe = 'Historical equal-weight pool with session headers; native session affinity is disabled. See docs/REPORT.md for the documented portal configuration.'
 $state.aiGateway.configuredUtc = [DateTime]::UtcNow.ToString('o')
 Save-LabState $state
 Write-Output 'Standalone gateway providers, models, aliases, and temporary runtime credential configured.'
