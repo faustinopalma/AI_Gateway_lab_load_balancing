@@ -9,10 +9,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1204.4633,
+    "totalMs": 1183.0516,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -24,10 +24,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1235.168,
+    "totalMs": 960.3718000000001,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -39,10 +39,55 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1584.5385999999999,
+    "totalMs": 1180.6584000000003,
+    "backend": "b2",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1064.1581999999994,
+    "backend": "b2",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1098.2541,
+    "backend": "b2",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1007.5115999999998,
     "backend": "b3",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -54,10 +99,40 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1254.6333999999997,
+    "totalMs": 1055.4785999999995,
+    "backend": "b2",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1110.7812999999996,
+    "backend": "b3",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1183.0173000000013,
     "backend": "b1",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -69,40 +144,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 930.4705999999996,
-    "backend": "b3",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1020.9465,
-    "backend": "b3",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1354.7285000000002,
+    "totalMs": 1371.4736000000012,
     "backend": "b1",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -114,70 +159,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1125.384399999999,
-    "backend": "b2",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1289.8394000000008,
-    "backend": "b2",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1104.1219,
-    "backend": "b2",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1135.9076000000005,
-    "backend": "b3",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1182.8575999999994,
+    "totalMs": 1150.239599999999,
     "backend": "b1",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -189,10 +174,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1080.1586000000007,
+    "totalMs": 1136.1903000000002,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -204,10 +189,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1165.5586000000003,
+    "totalMs": 1187.8914000000004,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -219,25 +204,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1305.1641999999993,
-    "backend": "b3",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1157.3009999999995,
+    "totalMs": 1110.1270999999997,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -249,10 +219,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1147.0793999999987,
-    "backend": "b3",
+    "totalMs": 1108.0023999999994,
+    "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -264,10 +234,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1265.2708999999995,
+    "totalMs": 1060.4992999999995,
     "backend": "b1",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -279,40 +249,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1285.4133000000002,
-    "backend": "b1",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1156.4573999999993,
-    "backend": "b1",
-    "attempts": 1,
-    "resourceLogVerified": false
-  },
-  {
-    "name": "no-session-header",
-    "expectedStatus": 200,
-    "passed": true,
-    "status": 200,
-    "complete": true,
-    "promptTokens": 10,
-    "cachedTokens": 0,
-    "outputTokens": 10,
-    "ttftMs": null,
-    "totalMs": 1046.7471000000005,
+    "totalMs": 1114.2393999999986,
     "backend": "b3",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -324,10 +264,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1509.8224999999984,
+    "totalMs": 1110.173200000001,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -339,10 +279,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1301.4062000000013,
+    "totalMs": 1208.4003000000012,
     "backend": "b3",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "no-session-header",
@@ -354,10 +294,70 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1179.1834000000017,
+    "totalMs": 1135.8597999999984,
     "backend": "b3",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1091.3590999999979,
+    "backend": "b3",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 894.2976000000017,
+    "backend": "b3",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1191.1981000000014,
+    "backend": "b3",
+    "attempts": 1,
+    "resourceLogVerified": true
+  },
+  {
+    "name": "no-session-header",
+    "expectedStatus": 200,
+    "passed": true,
+    "status": 200,
+    "complete": true,
+    "promptTokens": 10,
+    "cachedTokens": 0,
+    "outputTokens": 10,
+    "ttftMs": null,
+    "totalMs": 1067.9556999999986,
+    "backend": "b1",
+    "attempts": 1,
+    "resourceLogVerified": true
   },
   {
     "name": "conflicting-identifiers",
@@ -369,7 +369,7 @@
     "cachedTokens": null,
     "outputTokens": null,
     "ttftMs": null,
-    "totalMs": 77.22010000000228,
+    "totalMs": 38.91370000000097,
     "backend": "unknown",
     "attempts": null,
     "resourceLogVerified": false
@@ -384,7 +384,7 @@
     "cachedTokens": null,
     "outputTokens": null,
     "ttftMs": null,
-    "totalMs": 94.8140999999996,
+    "totalMs": 42.90709999999672,
     "backend": "unknown",
     "attempts": null,
     "resourceLogVerified": false
@@ -399,7 +399,7 @@
     "cachedTokens": null,
     "outputTokens": null,
     "ttftMs": null,
-    "totalMs": 95.57890000000043,
+    "totalMs": 39.31580000000031,
     "backend": "unknown",
     "attempts": null,
     "resourceLogVerified": false
@@ -414,10 +414,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1158.4159,
+    "totalMs": 1145.9213999999993,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "single-header:x-opencode-session-id",
@@ -429,10 +429,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1163.137999999999,
+    "totalMs": 939.3136000000013,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "single-header:x-session-affinity",
@@ -444,10 +444,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 998.931700000001,
+    "totalMs": 980.6206999999995,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "single-header:x-session-id",
@@ -459,10 +459,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1150.1344000000026,
+    "totalMs": 952.8948999999993,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "reconnection-first-request",
@@ -474,10 +474,10 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1369.4127999999982,
+    "totalMs": 1106.7188999999998,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   },
   {
     "name": "reconnection-new-http-request",
@@ -489,9 +489,9 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1192.9760000000024,
+    "totalMs": 1036.6189000000013,
     "backend": "b2",
     "attempts": 1,
-    "resourceLogVerified": false
+    "resourceLogVerified": true
   }
 ]

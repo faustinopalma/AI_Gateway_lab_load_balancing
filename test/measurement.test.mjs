@@ -4,6 +4,7 @@ import { sessionHeader, backendIndex, summarize } from '../scripts/routing.mjs';
 import { parseEvent } from '../scripts/measure.mjs';
 import { callModel } from '../scripts/measure.mjs';
 import { createServer } from 'node:http';
+import { validateComparisons } from '../scripts/validate-results.mjs';
 
 test('session identifiers must agree and preserve opaque case-sensitive values', () => {
   assert.equal(sessionHeader(new Headers()), null);
@@ -37,6 +38,26 @@ test('cache aggregation is token-weighted and unknown usage or routing is expose
   assert.equal(summary.failed, 1);
 });
 
+test('comparison acceptance requires configured affinity and independently verified routing', () => {
+  const comparisons = ['apim', 'aigateway'].flatMap(gateway => ['single', 'balanced', 'sticky'].map(scenario => ({
+    gateway, scenario, requests: 360, completed: 360, sessions: 60, usageCoverage: 1, resourceLogCoverage: 1,
+    affinityEnabled: scenario === 'sticky', sessionsSwitchingBackend: scenario === 'balanced' ? 60 : 0,
+    requestDistribution: scenario === 'single' ? { b1: 360 } : { b1: 120, b2: 120, b3: 120 },
+    initialSessionDistribution: { b1: 20, b2: 20, b3: 20 }, warmCacheRatio: 0.91,
+    byTurn: { 1: { cacheRatio: 0 } },
+  })));
+  assert.equal(validateComparisons(comparisons).passed, true);
+  const unconfigured = structuredClone(comparisons);
+  unconfigured[5].affinityEnabled = false;
+  assert.throws(() => validateComparisons(unconfigured), /affinity was not enabled/);
+  const unverified = structuredClone(comparisons);
+  unverified[5].resourceLogCoverage = 0.99;
+  assert.throws(() => validateComparisons(unverified), /incomplete backend evidence/);
+  const unstable = structuredClone(comparisons);
+  unstable[5].sessionsSwitchingBackend = 1;
+  assert.throws(() => validateComparisons(unstable), /healthy sessions changed backend/);
+});
+
 test('SSE usage, generated content, terminal completion, and errors stay distinct', () => {
   assert.equal(parseEvent('[DONE]').done, true);
   assert.equal(parseEvent('{"choices":[{"delta":{"role":"assistant"}}]}').content, false);
@@ -62,6 +83,7 @@ test('network-fragmented CRLF SSE retains usage and requires terminal completion
     }
     response.end();
   });
+
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
     const result = await callModel({
@@ -71,6 +93,29 @@ test('network-fragmented CRLF SSE retains usage and requires terminal completion
     assert.equal(result.promptTokens, 2048);
     assert.equal(result.cachedTokens, 1920);
     assert.ok(result.ttftMs >= 0);
+  } finally {
+    server.closeAllConnections();
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test('SSE completion does not wait for the server to close the transport', async () => {
+  const server = createServer(async (request, response) => {
+    for await (const chunk of request) void chunk;
+    response.writeHead(200, { 'content-type': 'text/event-stream' });
+    response.write([
+      'data: {"choices":[{"delta":{"content":"ACK"},"finish_reason":"stop"}]}',
+      'data: {"choices":[],"usage":{"prompt_tokens":2048,"prompt_tokens_details":{"cached_tokens":1920}}}',
+      'data: [DONE]',
+    ].join('\n\n') + '\n\n');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const result = await callModel({
+      url: `http://127.0.0.1:${server.address().port}`, body: { stream: true }, timeoutMs: 500,
+    });
+    assert.equal(result.complete, true);
+    assert.equal(result.cachedTokens, 1920);
   } finally {
     server.closeAllConnections();
     await new Promise(resolve => server.close(resolve));

@@ -38,12 +38,28 @@ await mkdir(folder, { recursive: true });
 await writeFile(resolve(folder, 'original-backend.json'), JSON.stringify(original, null, 2));
 const records = [];
 const sourceProbes = [];
+const verifiedFaults = new Set();
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const url = gateway === 'apim' ? `${state.apim.endpoint}/sticky/openai/v1/chat/completions` : state.aiGateway.chatUrl;
 const key = gateway === 'apim' ? process.env.LAB_APIM_KEY : process.env.LAB_AIGATEWAY_KEY;
 const keyHeader = gateway === 'apim' ? 'Ocp-Apim-Subscription-Key' : 'Authorization';
 if (!key) throw new Error('Runtime credential is missing.');
-const model = gateway === 'apim' ? state.deployment : `${state.model}-${cold ? providerName : 'failover'}`;
+const model = gateway === 'apim' ? state.deployment : `${state.model}-${cold ? providerName : 'sticky'}`;
+async function verifyNativePrimary(test, phase) {
+  const deadline = Date.now() + 120000;
+  while (Date.now() < deadline) {
+    const result = await callModel({ url, key, keyHeader, timeoutMs: Math.min(45000, deadline - Date.now()),
+      body: { model: `${state.model}-single`, messages: [{ role: 'user', content: 'Reply ACK.' }],
+        max_completion_tokens: 512, reasoning_effort: 'minimal', stream: false } });
+    sourceProbes.push({ test, phase, status: result.status, complete: result.complete, utc: new Date().toISOString() });
+    await writeFile(resolve(folder, 'source-probes.json'), JSON.stringify(sourceProbes, null, 2));
+    const matches = phase === 'healthy' ? result.complete
+      : test === 'unavailable' ? result.status >= 500 && result.status <= 599 : result.status === Number(test);
+    if (matches) return;
+    await pause(2000);
+  }
+  throw new Error(`Native b1-only control did not establish the ${test}/${phase} condition.`);
+}
 if (gateway === 'aigateway') {
   const readiness = [];
   for (let attempt = 0; attempt < 15; attempt++) {
@@ -58,10 +74,23 @@ if (gateway === 'aigateway') {
   }
 }
 const sessions = [];
-for (let index = 0; sessions.length < 6; index++) {
-  const session = `ses_fault_${index}`;
-  const home = backendIndex(session, model);
-  if (sessions.filter(item => item.home === home).length < 2) sessions.push({ session, home });
+if (gateway === 'aigateway' && !cold) {
+  const summaries = JSON.parse(await readFile(resolve('.lab', 'summaries.json'), 'utf8'));
+  const comparison = summaries.find(summary => summary.gateway === gateway && summary.scenario === 'sticky' && summary.resourceLogCoverage === 1);
+  if (!comparison) throw new Error('Enrich the native affinity comparison before running recovery checks.');
+  const rows = (await readFile(resolve('.lab', 'enriched', comparison.run, 'requests.jsonl'), 'utf8'))
+    .trim().split('\n').map(JSON.parse);
+  for (const backend of ['b1', 'b2', 'b3']) {
+    const candidates = rows.filter(record => record.turn === 0 && record.backend === backend);
+    if (candidates.length < 2) throw new Error('Recovery checks need two independently verified sessions per backend.');
+    sessions.push(...candidates.slice(0, 2).map(record => ({ session: record.session, home: Number(backend[1]) - 1 })));
+  }
+} else {
+  for (let index = 0; sessions.length < 6; index++) {
+    const session = `ses_fault_${index}`;
+    const home = backendIndex(session, model);
+    if (sessions.filter(item => item.home === home).length < 2) sessions.push({ session, home });
+  }
 }
 async function request(test, phase, session, turn) {
   let result;
@@ -71,7 +100,8 @@ async function request(test, phase, session, turn) {
     result = { complete: false, status: null, backend: 'unknown', error: error.message };
     console.error(`${gateway} ${test} ${phase}: ${error.message}`);
   }
-  const record = { gateway, run, test, phase, session, model, turn, ...result };
+  const expectedBackend = cold ? 'b1' : `b${sessions.find(item => item.session === session).home + 1}`;
+  const record = { gateway, run, test, phase, session, model, turn, expectedBackend, ...result };
   records.push(record);
   console.log(`${gateway} ${test} ${phase}: ${record.status} ${record.backend} attempts=${record.attempts ?? '?'} ${record.attemptLog ?? ''}`);
   await writeFile(resolve(folder, 'requests.json'), JSON.stringify(records, null, 2));
@@ -80,6 +110,7 @@ async function request(test, phase, session, turn) {
 let restored = false;
 try {
   for (const test of tests) {
+    if (gateway === 'aigateway' && !cold) await verifyNativePrimary(test, 'healthy');
     await Promise.all(sessions.map(item => request(test, 'before', item.session, 0)));
     const properties = structuredClone(original.properties);
     if (gateway === 'apim') properties.url = test === 'unavailable'
@@ -120,6 +151,10 @@ try {
         await pause(2000);
       }
       if (!verified) throw new Error(`The ${test} fault was not proven at the APIM data plane.`);
+      verifiedFaults.add(test);
+    } else if (!cold) {
+      await verifyNativePrimary(test, 'fault');
+      verifiedFaults.add(test);
     }
     for (const turn of [1, 2]) {
       await Promise.all(sessions.map(item => request(test, 'during', item.session, turn)));
@@ -127,6 +162,7 @@ try {
     await arm('PUT', id, version, original.properties);
     restored = true;
     await pause(12000);
+    if (gateway === 'aigateway' && !cold) await verifyNativePrimary(test, 'healthy');
     await Promise.all(sessions.map(item => request(test, 'after', item.session, 3)));
   }
 } finally {
@@ -146,7 +182,7 @@ const summary = {
   restored,
   tests: Object.fromEntries(tests.map(test => {
     const rows = records.filter(record => record.test === test && record.phase === 'during');
-    return [test, { requests: rows.length, completed: rows.filter(record => record.complete).length,
+    return [test, { faultVerified: verifiedFaults.has(test), requests: rows.length, completed: rows.filter(record => record.complete).length,
       failed: rows.filter(record => !record.complete).length,
       retried: gateway === 'apim' ? rows.filter(record => Number(record.attempts) > 1).length : null,
       bufferedRecovery: gateway === 'apim' ? rows.filter(record => record.recoveryBuffered).length : null }];

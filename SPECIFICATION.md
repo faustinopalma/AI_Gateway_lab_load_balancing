@@ -1,6 +1,7 @@
 # Lab Specification: LLM Load Balancing and Session Stickiness
 
-**Status:** Implementation authorized separately by the lab owner; results require measured evidence.  
+**Purpose:** Scope and acceptance criteria for the laboratory.
+
 **Date:** 12 November 2026  
 **Client:** OpenCode CLI
 
@@ -24,7 +25,7 @@ Run the same tests against both configurations:
 | APIM configured directly | Azure API Management exposing the model endpoints and managing backend selection. |
 | Standalone Azure AI Gateway | The new dedicated `Microsoft.ApiManagement/aigateways` resource, exposing a path usable by OpenCode. |
 
-The [new standalone AI Gateway](https://learn.microsoft.com/azure/ai-gateway/overview) is a dedicated product sharing the APIM resource provider. Record actual resources, endpoints, SKU, and configuration differences. The earlier Foundry integration with an APIM service is outside this comparison.
+The [standalone AI Gateway](https://learn.microsoft.com/azure/ai-gateway/overview) is a dedicated product sharing the APIM resource provider. Record actual resources, endpoints, SKU, and configuration differences.
 
 Confirm that OpenCode traffic actually traverses each tested gateway. If a configuration cannot expose the required client path or support the routing behavior, report that limitation. Foundry model router is outside this comparison.
 
@@ -32,11 +33,11 @@ Use the same three backend endpoints for both configurations. Each backend must 
 
 ## 3. OpenCode and session identification
 
-OpenCode is the required end-to-end client. Record its version, provider configuration, API surface, and streaming mode. The supplied observations refer to version 2.2.5; verify the headers on the version actually tested.
+OpenCode 2.2.5 is the required end-to-end client. Record its provider configuration, API surface, streaming mode, and observed headers.
 
 Only normal endpoint, model, and authentication configuration changes are allowed. The client cannot be required to preserve or return cookies.
 
-The supplied capture reports the same session identifier in:
+Verify that these headers carry the same conversation identifier:
 
 - `x-opencode-session`
 - `x-opencode-session-id`

@@ -31,7 +31,6 @@ foreach ($backend in $state.backends) {
     $model = Invoke-AzJson $modelArgs
     $modelIds += $model.id
 }
-# Preserve the measured header-only probe; native session affinity needs a separate alias.
 foreach ($scenario in @('single','balanced','sticky')) {
     $targets = if ($scenario -eq 'single') { @($modelIds[0]) } else { $modelIds }
     $pool = Write-PrivateJson "alias-$scenario.json" @($targets | ForEach-Object {
@@ -39,6 +38,22 @@ foreach ($scenario in @('single','balanced','sticky')) {
     })
     $alias = Invoke-AzJson (@('aigateway','model-alias','set') + $scope + @(
         '--name', "$($state.model)-$scenario", '--routing-name', "$($state.model)-$scenario", '--backend-models', "@$pool"))
+    if ($scenario -eq 'sticky') {
+        $expression = "@cel('x-opencode-session' in request.headers ? request.headers['x-opencode-session'][0] : '')"
+        $settings = Write-PrivateJson 'alias-affinity-settings.json' @{
+            properties = @{
+                sessionBackendPreference = @{ key = $expression }
+                selectionOrder = @('sessionBackendPreference', 'priority')
+            }
+        }
+        $url = "https://management.azure.com$($alias.id)?api-version=2025-09-01-preview"
+        $null = Invoke-AzJson @('rest','--method','patch','--url',$url,'--headers','If-Match=*','--body',"@$settings")
+        $alias = Invoke-AzJson @('rest','--method','get','--url',$url)
+        if ($alias.properties.sessionBackendPreference.key -ne $expression -or
+            ($alias.properties.selectionOrder -join ',') -ne 'sessionBackendPreference,priority') {
+            throw 'The native session-affinity configuration was not persisted as requested.'
+        }
+    }
     $null = Write-PrivateJson "alias-$scenario-saved.json" $alias
 }
 $existingKeys = Invoke-AzJson (@('aigateway','api-key','list') + $scope + @('--query','[].name'))
@@ -55,7 +70,11 @@ if ($gateway.properties.frontend.defaultHostname) {
 } else { throw 'No documented runtime endpoint was returned by the standalone gateway.' }
 $state.aiGateway.chatUrl = "$base/default/models/openai/v1/chat/completions"
 $state.aiGateway.modelRegistrations = $modelIds
-$state.aiGateway.affinityProbe = 'Historical equal-weight pool with session headers; native session affinity is disabled. See docs/REPORT.md for the documented portal configuration.'
+$state.aiGateway.sessionAffinity = @{
+    enabled = $true
+    header = 'x-opencode-session'
+    selectionOrder = @('sessionBackendPreference','priority')
+}
 $state.aiGateway.configuredUtc = [DateTime]::UtcNow.ToString('o')
 Save-LabState $state
 Write-Output 'Standalone gateway providers, models, aliases, and temporary runtime credential configured.'

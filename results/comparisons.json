@@ -1,86 +1,13 @@
 [
   {
-    "run": "aigateway-balanced-9f904e9d",
-    "gateway": "aigateway",
-    "scenario": "balanced",
-    "workers": 12,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": false,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 0.6027777777777777,
-    "resourceLogCoverage": 0.6027777777777777,
-    "sessionsWithKnownBackend": 56,
-    "sessionsSwitchingBackend": 0,
-    "sessionDistribution": {
-      "b1": 18,
-      "b2": 20,
-      "b3": 18
-    },
-    "requestDistribution": {
-      "unknown": 143,
-      "b1": 67,
-      "b2": 83,
-      "b3": 67
-    },
-    "initialSessionDistribution": {
-      "unknown": 27,
-      "b1": 10,
-      "b2": 13,
-      "b3": 10
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 0,
-    "retriedRequests": null,
-    "cacheRatio": 0.7535372727848502,
-    "warmCacheRatio": 0.9025298691446995,
-    "inputTokens": 1894680,
-    "cachedTokens": 1427712,
-    "outputTokens": 3600,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.8744506019491687
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9027984009137635
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.9151526645173526
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.9116946911014547
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.9082627517410126
-      }
-    },
-    "ttftP50Ms": 447.9546999999948,
-    "ttftP95Ms": 759.4308999999776,
-    "totalP50Ms": 521.8315999999995,
-    "totalP95Ms": 866.3011999999871,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "aigateway-balanced-a74d06d5",
+    "run": "aigateway-balanced-815bb048",
     "gateway": "aigateway",
     "scenario": "balanced",
     "workers": 11,
     "turns": 6,
     "rpm": 36,
     "sessionHeadersSent": false,
+    "affinityEnabled": false,
     "requests": 360,
     "completed": 360,
     "failed": 0,
@@ -108,10 +35,10 @@
     "expectedFirstAttemptRatio": null,
     "attemptCoverage": 0,
     "retriedRequests": null,
-    "cacheRatio": 0.7563157227923476,
-    "warmCacheRatio": 0.9058573596358118,
-    "inputTokens": 1894320,
-    "cachedTokens": 1432704,
+    "cacheRatio": 0.7776932826362484,
+    "warmCacheRatio": 0.93146110056926,
+    "inputTokens": 1893600,
+    "cachedTokens": 1472640,
     "outputTokens": 3600,
     "byTurn": {
       "1": {
@@ -120,107 +47,40 @@
       },
       "2": {
         "requests": 60,
-        "cacheRatio": 0.9064220183486239
+        "cacheRatio": 0.9226768642447418
       },
       "3": {
         "requests": 60,
-        "cacheRatio": 0.902970297029703
+        "cacheRatio": 0.9508571428571428
       },
       "4": {
         "requests": 60,
-        "cacheRatio": 0.9153262518968134
+        "cacheRatio": 0.93146110056926
       },
       "5": {
         "requests": 60,
-        "cacheRatio": 0.9118669690098261
+        "cacheRatio": 0.912211720226843
       },
       "6": {
         "requests": 60,
-        "cacheRatio": 0.8927710843373494
+        "cacheRatio": 0.9401129943502825
       }
     },
-    "ttftP50Ms": 452.8899999999994,
-    "ttftP95Ms": 691.1735000000335,
-    "totalP50Ms": 504.6741000000038,
-    "totalP95Ms": 789.2607999999891,
+    "ttftP50Ms": 340.7563000000082,
+    "ttftP95Ms": 473.9638999999879,
+    "totalP50Ms": 420.9408999999978,
+    "totalP95Ms": 557.1577000000107,
     "unexplainedFirstAttemptMismatches": null
   },
   {
-    "run": "aigateway-single-3ef18efd",
-    "gateway": "aigateway",
-    "scenario": "single",
-    "workers": 12,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": true,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 0.5944444444444444,
-    "resourceLogCoverage": 0.5944444444444444,
-    "sessionsWithKnownBackend": 57,
-    "sessionsSwitchingBackend": 0,
-    "sessionDistribution": {
-      "b1": 57
-    },
-    "requestDistribution": {
-      "unknown": 146,
-      "b1": 214
-    },
-    "initialSessionDistribution": {
-      "unknown": 28,
-      "b1": 32
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 0,
-    "retriedRequests": null,
-    "cacheRatio": 0.7485522397516315,
-    "warmCacheRatio": 0.8965585277935876,
-    "inputTokens": 1893960,
-    "cachedTokens": 1417728,
-    "outputTokens": 3600,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.8747849359587077
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9506760617025328
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.931284386264466
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.8648648648648649
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.8616079834306157
-      }
-    },
-    "ttftP50Ms": 421.8250999999873,
-    "ttftP95Ms": 760.3266000000003,
-    "totalP50Ms": 526.0154999999795,
-    "totalP95Ms": 842.1481000000203,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "aigateway-single-f800c3d2",
+    "run": "aigateway-single-c1f3352f",
     "gateway": "aigateway",
     "scenario": "single",
     "workers": 11,
     "turns": 6,
     "rpm": 36,
     "sessionHeadersSent": true,
+    "affinityEnabled": false,
     "requests": 360,
     "completed": 360,
     "failed": 0,
@@ -242,10 +102,10 @@
     "expectedFirstAttemptRatio": null,
     "attemptCoverage": 0,
     "retriedRequests": null,
-    "cacheRatio": 0.7484099835297099,
-    "warmCacheRatio": 0.8963884673748104,
+    "cacheRatio": 0.7694919548967439,
+    "warmCacheRatio": 0.921638846737481,
     "inputTokens": 1894320,
-    "cachedTokens": 1417728,
+    "cachedTokens": 1457664,
     "outputTokens": 3600,
     "byTurn": {
       "1": {
@@ -254,7 +114,7 @@
       },
       "2": {
         "requests": 60,
-        "cacheRatio": 0.9064220183486239
+        "cacheRatio": 0.9223241590214067
       },
       "3": {
         "requests": 60,
@@ -262,31 +122,105 @@
       },
       "4": {
         "requests": 60,
-        "cacheRatio": 0.883763277693475
+        "cacheRatio": 0.9468892261001517
       },
       "5": {
         "requests": 60,
-        "cacheRatio": 0.8647014361300076
+        "cacheRatio": 0.9118669690098261
       },
       "6": {
         "requests": 60,
         "cacheRatio": 0.908433734939759
       }
     },
-    "ttftP50Ms": 418.3261999999959,
-    "ttftP95Ms": 752.57779999997,
-    "totalP50Ms": 519.9476999999897,
-    "totalP95Ms": 833.7497999999905,
+    "ttftP50Ms": 339.994200000001,
+    "ttftP95Ms": 507.9883999999729,
+    "totalP50Ms": 420.2245999999577,
+    "totalP95Ms": 600.9269999999997,
     "unexplainedFirstAttemptMismatches": null
   },
   {
-    "run": "aigateway-sticky-2536303f",
+    "run": "aigateway-sticky-1b636845",
     "gateway": "aigateway",
     "scenario": "sticky",
     "workers": 11,
     "turns": 6,
     "rpm": 36,
     "sessionHeadersSent": true,
+    "affinityEnabled": true,
+    "requests": 360,
+    "completed": 360,
+    "failed": 0,
+    "sessions": 60,
+    "usageCoverage": 1,
+    "backendCoverage": 1,
+    "resourceLogCoverage": 1,
+    "sessionsWithKnownBackend": 60,
+    "sessionsSwitchingBackend": 0,
+    "sessionDistribution": {
+      "b2": 25,
+      "b3": 16,
+      "b1": 19
+    },
+    "requestDistribution": {
+      "b2": 150,
+      "b3": 96,
+      "b1": 114
+    },
+    "initialSessionDistribution": {
+      "b2": 25,
+      "b3": 16,
+      "b1": 19
+    },
+    "expectedFirstAttemptRatio": null,
+    "attemptCoverage": 0,
+    "retriedRequests": null,
+    "cacheRatio": 0.7615862156341062,
+    "warmCacheRatio": 0.9121699544764795,
+    "inputTokens": 1894320,
+    "cachedTokens": 1442688,
+    "outputTokens": 3600,
+    "byTurn": {
+      "1": {
+        "requests": 60,
+        "cacheRatio": 0
+      },
+      "2": {
+        "requests": 60,
+        "cacheRatio": 0.8746177370030581
+      },
+      "3": {
+        "requests": 60,
+        "cacheRatio": 0.902970297029703
+      },
+      "4": {
+        "requests": 60,
+        "cacheRatio": 0.9311077389984825
+      },
+      "5": {
+        "requests": 60,
+        "cacheRatio": 0.9433106575963719
+      },
+      "6": {
+        "requests": 60,
+        "cacheRatio": 0.908433734939759
+      }
+    },
+    "ttftP50Ms": 330.8037999999942,
+    "ttftP95Ms": 459.2235000000219,
+    "totalP50Ms": 412.66049999999814,
+    "totalP95Ms": 551.2079999999842,
+    "unexplainedFirstAttemptMismatches": null
+  },
+  {
+    "run": "apim-balanced-9c0d1e2a",
+    "gateway": "apim",
+    "scenario": "balanced",
+    "workers": 11,
+    "turns": 6,
+    "rpm": 36,
+    "sessionHeadersSent": false,
+    "affinityEnabled": false,
     "requests": 360,
     "completed": 360,
     "failed": 0,
@@ -302,169 +236,21 @@
       "b2": 60
     },
     "requestDistribution": {
-      "b1": 121,
-      "b2": 121,
-      "b3": 118
+      "b1": 120,
+      "b2": 120,
+      "b3": 120
     },
     "initialSessionDistribution": {
       "b1": 22,
-      "b2": 23,
-      "b3": 15
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 0,
-    "retriedRequests": null,
-    "cacheRatio": 0.7642214620549854,
-    "warmCacheRatio": 0.9153262518968134,
-    "inputTokens": 1894320,
-    "cachedTokens": 1447680,
-    "outputTokens": 3600,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.9223241590214067
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9188118811881189
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.9153262518968134
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.9118669690098261
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.908433734939759
-      }
-    },
-    "ttftP50Ms": 449.28289999999834,
-    "ttftP95Ms": 705.8242000000027,
-    "totalP50Ms": 517.123299999992,
-    "totalP95Ms": 815.230899999995,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "aigateway-sticky-4f0f598a",
-    "gateway": "aigateway",
-    "scenario": "sticky",
-    "workers": 12,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": true,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 0.6166666666666667,
-    "resourceLogCoverage": 0.6166666666666667,
-    "sessionsWithKnownBackend": 56,
-    "sessionsSwitchingBackend": 4,
-    "sessionDistribution": {
-      "b2": 20,
-      "b3": 21,
-      "b1": 19
-    },
-    "requestDistribution": {
-      "unknown": 138,
-      "b3": 74,
-      "b1": 71,
-      "b2": 77
-    },
-    "initialSessionDistribution": {
-      "unknown": 29,
-      "b3": 10,
-      "b1": 12,
-      "b2": 9
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 0,
-    "retriedRequests": null,
-    "cacheRatio": 0.7481256332320162,
-    "warmCacheRatio": 0.8960485400075844,
-    "inputTokens": 1895040,
-    "cachedTokens": 1417728,
-    "outputTokens": 3716,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.8901795949560566
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.902626570232204
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.8992036405005688
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.8800906686815263
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.9080918328942417
-      }
-    },
-    "ttftP50Ms": 444.1212999999989,
-    "ttftP95Ms": 729.4111999999732,
-    "totalP50Ms": 544.5757999999914,
-    "totalP95Ms": 823.2362999999896,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "apim-balanced-82757f5f",
-    "gateway": "apim",
-    "scenario": "balanced",
-    "workers": 12,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": false,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 0.6111111111111112,
-    "resourceLogCoverage": 0.6111111111111112,
-    "sessionsWithKnownBackend": 55,
-    "sessionsSwitchingBackend": 3,
-    "sessionDistribution": {
-      "b1": 20,
-      "b3": 19,
-      "b2": 19
-    },
-    "requestDistribution": {
-      "unknown": 140,
-      "b1": 71,
-      "b3": 73,
-      "b2": 76
-    },
-    "initialSessionDistribution": {
-      "unknown": 31,
-      "b2": 10,
-      "b1": 12,
-      "b3": 7
+      "b2": 22,
+      "b3": 16
     },
     "expectedFirstAttemptRatio": null,
     "attemptCoverage": 1,
     "retriedRequests": 0,
-    "cacheRatio": 0.7589509692132269,
-    "warmCacheRatio": 0.9090136570561457,
-    "inputTokens": 1894320,
+    "cacheRatio": 0.7585185185185185,
+    "warmCacheRatio": 0.908496682464455,
+    "inputTokens": 1895400,
     "cachedTokens": 1437696,
     "outputTokens": 3600,
     "byTurn": {
@@ -474,39 +260,40 @@
       },
       "2": {
         "requests": 60,
-        "cacheRatio": 0.9382262996941896
+        "cacheRatio": 0.8900095510983763
       },
       "3": {
         "requests": 60,
-        "cacheRatio": 0.902970297029703
+        "cacheRatio": 0.9024548049476688
       },
       "4": {
         "requests": 60,
-        "cacheRatio": 0.9153262518968134
+        "cacheRatio": 0.946350710900474
       },
       "5": {
         "requests": 60,
-        "cacheRatio": 0.9118669690098261
+        "cacheRatio": 0.9113503305004721
       },
       "6": {
         "requests": 60,
-        "cacheRatio": 0.8771084337349397
+        "cacheRatio": 0.8922671683913452
       }
     },
-    "ttftP50Ms": 430.7170000000042,
-    "ttftP95Ms": 765.7956999999878,
-    "totalP50Ms": 541.9502999999968,
-    "totalP95Ms": 896.3038000000088,
+    "ttftP50Ms": 477.4907999999996,
+    "ttftP95Ms": 611.5068000000028,
+    "totalP50Ms": 558.3797999999952,
+    "totalP95Ms": 700.1403000000282,
     "unexplainedFirstAttemptMismatches": null
   },
   {
-    "run": "apim-balanced-e4ff7945",
+    "run": "apim-single-25240587",
     "gateway": "apim",
-    "scenario": "balanced",
+    "scenario": "single",
     "workers": 11,
     "turns": 6,
     "rpm": 36,
-    "sessionHeadersSent": false,
+    "sessionHeadersSent": true,
+    "affinityEnabled": false,
     "requests": 360,
     "completed": 360,
     "failed": 0,
@@ -514,148 +301,6 @@
     "usageCoverage": 1,
     "backendCoverage": 1,
     "resourceLogCoverage": 1,
-    "sessionsWithKnownBackend": 60,
-    "sessionsSwitchingBackend": 60,
-    "sessionDistribution": {
-      "b2": 60,
-      "b1": 60,
-      "b3": 60
-    },
-    "requestDistribution": {
-      "b2": 120,
-      "b3": 121,
-      "b1": 119
-    },
-    "initialSessionDistribution": {
-      "b2": 19,
-      "b3": 22,
-      "b1": 19
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 1,
-    "retriedRequests": 0,
-    "cacheRatio": 0.759095229043908,
-    "warmCacheRatio": 0.9091861126920888,
-    "inputTokens": 1893960,
-    "cachedTokens": 1437696,
-    "outputTokens": 3750,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.8906901166125024
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9348314606741573
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.8997154240182129
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.912039312039312
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.9086047825268311
-      }
-    },
-    "ttftP50Ms": 412.61839999997756,
-    "ttftP95Ms": 746.1180000000168,
-    "totalP50Ms": 517.55620000005,
-    "totalP95Ms": 867.2706000000471,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "apim-single-2940f528",
-    "gateway": "apim",
-    "scenario": "single",
-    "workers": 11,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": true,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 1,
-    "resourceLogCoverage": 1,
-    "sessionsWithKnownBackend": 60,
-    "sessionsSwitchingBackend": 7,
-    "sessionDistribution": {
-      "b1": 60,
-      "b3": 1,
-      "b2": 6
-    },
-    "requestDistribution": {
-      "b1": 353,
-      "b2": 6,
-      "b3": 1
-    },
-    "initialSessionDistribution": {
-      "b1": 60
-    },
-    "expectedFirstAttemptRatio": null,
-    "attemptCoverage": 1,
-    "retriedRequests": 7,
-    "cacheRatio": 0.759095229043908,
-    "warmCacheRatio": 0.9091861126920888,
-    "inputTokens": 1893960,
-    "cachedTokens": 1437696,
-    "outputTokens": 3600,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.8747849359587077
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9189868596457818
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.8839309428950863
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.9434889434889435
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.9242703822255696
-      }
-    },
-    "ttftP50Ms": 409.07929999998305,
-    "ttftP95Ms": 713.0569000000032,
-    "totalP50Ms": 500.1640999999945,
-    "totalP95Ms": 793.8277999999991,
-    "unexplainedFirstAttemptMismatches": null
-  },
-  {
-    "run": "apim-single-9b17ca73",
-    "gateway": "apim",
-    "scenario": "single",
-    "workers": 12,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": true,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 1,
-    "resourceLogCoverage": 0.5888888888888889,
     "sessionsWithKnownBackend": 60,
     "sessionsSwitchingBackend": 0,
     "sessionDistribution": {
@@ -670,10 +315,10 @@
     "expectedFirstAttemptRatio": null,
     "attemptCoverage": 1,
     "retriedRequests": 0,
-    "cacheRatio": 0.7615862156341062,
-    "warmCacheRatio": 0.9121699544764795,
-    "inputTokens": 1894320,
-    "cachedTokens": 1442688,
+    "cacheRatio": 0.7750570342205323,
+    "warmCacheRatio": 0.928303605313093,
+    "inputTokens": 1893600,
+    "cachedTokens": 1467648,
     "outputTokens": 3600,
     "byTurn": {
       "1": {
@@ -682,46 +327,47 @@
       },
       "2": {
         "requests": 60,
-        "cacheRatio": 0.9223241590214067
+        "cacheRatio": 0.9067686424474187
       },
       "3": {
         "requests": 60,
-        "cacheRatio": 0.9346534653465347
+        "cacheRatio": 0.9508571428571428
       },
       "4": {
         "requests": 60,
-        "cacheRatio": 0.9153262518968134
+        "cacheRatio": 0.93146110056926
       },
       "5": {
         "requests": 60,
-        "cacheRatio": 0.8804232804232804
+        "cacheRatio": 0.9279395085066162
       },
       "6": {
         "requests": 60,
-        "cacheRatio": 0.908433734939759
+        "cacheRatio": 0.9244444444444444
       }
     },
-    "ttftP50Ms": 428.8724999999977,
-    "ttftP95Ms": 736.8755999999994,
-    "totalP50Ms": 525.9187999999849,
-    "totalP95Ms": 893.9850000000006,
+    "ttftP50Ms": 517.0499999999884,
+    "ttftP95Ms": 693.482399999979,
+    "totalP50Ms": 597.9722000000183,
+    "totalP95Ms": 768.8097000000125,
     "unexplainedFirstAttemptMismatches": null
   },
   {
-    "run": "apim-sticky-df9a2a0f",
+    "run": "apim-sticky-ee2f02e4",
     "gateway": "apim",
     "scenario": "sticky",
-    "workers": 12,
+    "workers": 11,
     "turns": 6,
     "rpm": 36,
     "sessionHeadersSent": true,
+    "affinityEnabled": true,
     "requests": 360,
     "completed": 360,
     "failed": 0,
     "sessions": 60,
     "usageCoverage": 1,
     "backendCoverage": 1,
-    "resourceLogCoverage": 0.6138888888888889,
+    "resourceLogCoverage": 1,
     "sessionsWithKnownBackend": 60,
     "sessionsSwitchingBackend": 0,
     "sessionDistribution": {
@@ -742,82 +388,10 @@
     "expectedFirstAttemptRatio": 1,
     "attemptCoverage": 1,
     "retriedRequests": 0,
-    "cacheRatio": 0.7611522633744856,
-    "warmCacheRatio": 0.9116511848341232,
-    "inputTokens": 1895400,
-    "cachedTokens": 1442688,
-    "outputTokens": 3600,
-    "byTurn": {
-      "1": {
-        "requests": 60,
-        "cacheRatio": 0
-      },
-      "2": {
-        "requests": 60,
-        "cacheRatio": 0.9535816618911175
-      },
-      "3": {
-        "requests": 60,
-        "cacheRatio": 0.9182873453853473
-      },
-      "4": {
-        "requests": 60,
-        "cacheRatio": 0.9148056872037915
-      },
-      "5": {
-        "requests": 60,
-        "cacheRatio": 0.8642115203021719
-      },
-      "6": {
-        "requests": 60,
-        "cacheRatio": 0.9079209783631232
-      }
-    },
-    "ttftP50Ms": 433.2427000000025,
-    "ttftP95Ms": 786.3689000000013,
-    "totalP50Ms": 536.2633000000205,
-    "totalP95Ms": 919.0847000000067,
-    "unexplainedFirstAttemptMismatches": 0
-  },
-  {
-    "run": "apim-sticky-f43c55b5",
-    "gateway": "apim",
-    "scenario": "sticky",
-    "workers": 11,
-    "turns": 6,
-    "rpm": 36,
-    "sessionHeadersSent": true,
-    "requests": 360,
-    "completed": 360,
-    "failed": 0,
-    "sessions": 60,
-    "usageCoverage": 1,
-    "backendCoverage": 1,
-    "resourceLogCoverage": 1,
-    "sessionsWithKnownBackend": 60,
-    "sessionsSwitchingBackend": 3,
-    "sessionDistribution": {
-      "b1": 20,
-      "b3": 19,
-      "b2": 24
-    },
-    "requestDistribution": {
-      "b1": 119,
-      "b3": 104,
-      "b2": 137
-    },
-    "initialSessionDistribution": {
-      "b1": 20,
-      "b3": 17,
-      "b2": 23
-    },
-    "expectedFirstAttemptRatio": 0.9916666666666667,
-    "attemptCoverage": 1,
-    "retriedRequests": 3,
-    "cacheRatio": 0.764076255621002,
-    "warmCacheRatio": 0.9151526645173526,
+    "cacheRatio": 0.7403635442396606,
+    "warmCacheRatio": 0.886751374928883,
     "inputTokens": 1894680,
-    "cachedTokens": 1447680,
+    "cachedTokens": 1402752,
     "outputTokens": 3600,
     "byTurn": {
       "1": {
@@ -826,7 +400,7 @@
       },
       "2": {
         "requests": 60,
-        "cacheRatio": 0.9221479075100325
+        "cacheRatio": 0.8744506019491687
       },
       "3": {
         "requests": 60,
@@ -834,7 +408,7 @@
       },
       "4": {
         "requests": 60,
-        "cacheRatio": 0.9151526645173526
+        "cacheRatio": 0.8520386876540869
       },
       "5": {
         "requests": 60,
@@ -842,13 +416,13 @@
       },
       "6": {
         "requests": 60,
-        "cacheRatio": 0.923922454357237
+        "cacheRatio": 0.8926030491247883
       }
     },
-    "ttftP50Ms": 409.30549999998766,
-    "ttftP95Ms": 682.3871999999974,
-    "totalP50Ms": 533.8042000000132,
-    "totalP95Ms": 793.602899999998,
+    "ttftP50Ms": 483.2239999999947,
+    "ttftP95Ms": 608.3044000000009,
+    "totalP50Ms": 565.8707000000286,
+    "totalP95Ms": 705.1924999999974,
     "unexplainedFirstAttemptMismatches": 0
   }
 ]

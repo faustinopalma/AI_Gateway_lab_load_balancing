@@ -55,14 +55,16 @@ try {
             $primary = $model.id
             $aliasName = "$($state.model)-$($env:LAB_FAULT_PROVIDER)"
         }
-        $targets = Write-PrivateJson 'fault-native-targets.json' @(
-            @{resourceId=$primary;priority=0;weight=1}
-            @{resourceId=$state.aiGateway.modelRegistrations[1];priority=1;weight=1}
-            @{resourceId=$state.aiGateway.modelRegistrations[2];priority=1;weight=1}
-        )
-        $null = Invoke-AzJson @('aigateway','model-alias','set','--subscription',$state.subscription,
-            '--resource-group',$state.resourceGroup,'--gateway-name',$state.aiGateway.name,
-            '--name',$aliasName,'--routing-name',$aliasName,'--backend-models',"@$targets")
+        if ($ColdTransportOnly) {
+            $targets = Write-PrivateJson 'fault-native-targets.json' @(
+                @{resourceId=$primary;priority=0;weight=1}
+                @{resourceId=$state.aiGateway.modelRegistrations[1];priority=1;weight=1}
+                @{resourceId=$state.aiGateway.modelRegistrations[2];priority=1;weight=1}
+            )
+            $null = Invoke-AzJson @('aigateway','model-alias','set','--subscription',$state.subscription,
+                '--resource-group',$state.resourceGroup,'--gateway-name',$state.aiGateway.name,
+                '--name',$aliasName,'--routing-name',$aliasName,'--backend-models',"@$targets")
+        }
         $keys = Invoke-AzJson @('aigateway','api-key','list-secrets','--subscription',$state.subscription,
             '--resource-group',$state.resourceGroup,'--gateway-name',$state.aiGateway.name,'--name','lab')
         $env:LAB_AIGATEWAY_KEY = $keys.primaryKey

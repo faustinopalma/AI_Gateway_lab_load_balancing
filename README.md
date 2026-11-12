@@ -1,28 +1,32 @@
-# LLM cache-affinity laboratory
+# Cookie-free LLM session affinity
 
-Compare Azure API Management and the new standalone Azure AI Gateway using OpenCode and three identical model deployments. Measure whether independent sessions are distributed and each conversation stays on one backend without cookies.
+A reproducible laboratory for **Azure API Management** and **standalone Azure AI Gateway**, using **OpenCode 2.2.5** and three identical Azure OpenAI deployments.
 
-**Results:** APIM's configurable policies delivered the required cookie-free session routing and tested recovery. Standalone AI Gateway has a documented native session-affinity setting identified during follow-up research; the original measurements covered ordinary pools with that setting disabled. Its native configuration awaits a separate runtime test. A cache-saving advantage from affinity was not demonstrated with this Global Standard model.
+The gateway distributes independent conversations across backends and keeps each conversation on its preferred backend while it is available. Tests measure actual backend placement, prompt-cache reuse, streaming, and recovery.
 
-- [Readable lab report](docs/REPORT.md)
-- [Specification](SPECIFICATION.md)
+Both configurations passed the healthy-session routing comparison: **2,160 completed responses** and **zero affinity-session backend changes**. APIM also met the controlled recovery criterion; the report explains the standalone preview's current recovery boundary.
+
+- [Concepts, configurations, and measured results](docs/REPORT.md)
+- [Test specification](SPECIFICATION.md)
 - [Editable Inkscape diagram](docs/architecture.svg) and [PNG preview](docs/architecture.png)
-- [Sanitized measured results](results/)
+- [Sanitized measurement data](results/)
 
-## Prerequisites
+## Requirements
 
-- PowerShell 7, Azure CLI, Bicep, Node.js 22 or later, and Git.
-- The [official `aigateway` Azure CLI extension](https://learn.microsoft.com/azure/ai-gateway/get-started-cli); tested version: `1.0.0b26`.
-- GitHub CLI for the exact official OpenCode installer. The tested client is **OpenCode 2.2.5**, downloaded from its GitHub release with checksum verification.
-- An authorized laboratory subscription with model quota and registered `Microsoft.ApiManagement` / `Microsoft.CognitiveServices`.
-- Confirm current pricing and your spending envelope before running. Basic v2 capacity is billed while it exists. Model inference and telemetry are billed separately.
+Use PowerShell 7, Azure CLI with the official `aigateway` extension, Bicep, Node.js 22+, and Git. GitHub CLI downloads the checksum-verified OpenCode binary.
 
-## Reproduce the lab
+Use an authorized lab subscription with sufficient model quota. Providers `Microsoft.ApiManagement`, `Microsoft.CognitiveServices`, `Microsoft.OperationalInsights`, and `Microsoft.Insights` must be registered. Obtain permission before registering subscription-wide providers.
 
-Use an authorized local Azure CLI profile. Keep its directory outside the repository. Scripts use the explicit subscription stored in the private manifest.
+The infrastructure is one APIM **Basic v2** unit, one standalone AI Gateway **Standard preview**, three Azure OpenAI accounts in Sweden Central, and capped telemetry. Each account deploys **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** and 1,000,000 TPM / 1,000 RPM quota. Inference placement is service-managed.
+
+Confirm current prices and a spending envelope before provisioning. APIM capacity is billed while it exists; inference and telemetry are billed separately. The lab uses pay-as-you-go capacity.
+
+## Create and configure
+
+Keep the Azure CLI profile outside the repository:
 
 ```powershell
-$env:AZURE_CONFIG_DIR = '<local Azure CLI profile directory>'
+$env:AZURE_CONFIG_DIR = '<authorized local Azure CLI profile>'
 npm ci
 npm test
 .\scripts\New-Lab.ps1 -SubscriptionId '<subscription-id>' -CreateAiGateway
@@ -30,39 +34,46 @@ npm test
 .\scripts\Set-AiGateway.ps1
 .\scripts\Set-Telemetry.ps1
 .\scripts\Set-ModelDiagnostics.ps1
+.\scripts\Wait-ModelDiagnostics.ps1
 .\scripts\Install-OpenCode.ps1
 ```
 
-Register `Microsoft.ApiManagement`, `Microsoft.CognitiveServices`, `Microsoft.OperationalInsights`, and `Microsoft.Insights` beforehand when needed. Provider registration changes the subscription; obtain authorization for it.
+Resources belong to a newly generated group tagged `purpose=llm-cache-affinity-lab`, `owner=fausto.palma`, and a unique lab identifier. Existing groups are never reused. Manifests, credentials, and raw evidence stay in the Git-ignored `.lab` directory.
 
-The default deployment is one APIM Basic v2 unit, a standalone Standard preview gateway, and three separate Azure OpenAI accounts in Sweden Central. Each account deploys `gpt-5-nano`, version `2025-08-07`, under the deployment name `gpt-5-nano`, using Global Standard. Physical inference placement is service-managed.
+The diagnostic-readiness step waits for independently matched requests from all three model accounts. [Initial diagnostic availability can take up to two hours](https://learn.microsoft.com/azure/ai-services/diagnostic-logging); keep this step before acceptance measurements.
 
-Each model deployment has 1,000,000 TPM / 1,000 RPM quota for the concurrent comparison. This is pay-as-you-go rate capacity. No PTU is allocated. Check availability and quota in your subscription before provisioning.
+Both gateways authenticate to models using managed identity. Model API-key authentication is disabled. Normal client-to-gateway credentials remain environment references.
 
-Resources use a newly generated group tagged `purpose=llm-cache-affinity-lab`, `owner=fausto.palma`, and a unique lab identifier. Existing groups are never reused. Resource IDs, endpoints, and local state remain under the Git-ignored `.lab` directory.
+### Routing configurations
 
-### Measurements
+| Case | APIM | Standalone AI Gateway |
+|---|---|---|
+| `single` | Prefer backend b1. | Alias with backend b1. |
+| `balanced` | Equal-weight backend pool. | Equal-weight, equal-priority alias. |
+| `sticky` | Policy hashes model and session identifier. | Alias enables native session affinity from `x-opencode-session`. |
 
-Run each command once, or run the six combinations in separate PowerShell processes. Set `AZURE_CONFIG_DIR` in every process. Each case takes approximately ten minutes:
+APIM APIs expose `/{case}/openai/v1/chat/completions`. Backend entities are `b1`, `b2`, and `b3`; endpoint named values are `lab-endpoint-b1` through `lab-endpoint-b3`. API-level templates are in [policies](policies/).
+
+Standalone routing is in workspace `default`, providers `b1`/`b2`/`b3`, registration `lab-chat`, and aliases `gpt-5-nano-{case}`. Requests use `/default/models/openai/v1/chat/completions`, with the alias in `model`. [Set-AiGateway.ps1](scripts/Set-AiGateway.ps1) sets and verifies `properties.sessionBackendPreference.key` and `properties.selectionOrder` through ARM.
+
+OpenCode examples: [APIM](examples/opencode-apim.json) and [AI Gateway](examples/opencode-aigateway.json). Set `providers.lab.settings.baseURL`, the gateway credential reference, and `model`. Keep the Chat Completions provider package shown in the examples.
+
+## Run the comparison
+
+Run these commands in separate PowerShell processes, setting `AZURE_CONFIG_DIR` in each:
 
 ```powershell
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario single -ConcurrentSessions 11
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario balanced -ConcurrentSessions 11
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario sticky -ConcurrentSessions 11
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario single -ConcurrentSessions 11
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario balanced -ConcurrentSessions 11
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario sticky -ConcurrentSessions 11
+.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario single
+.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario balanced
+.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario sticky
+.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario single
+.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario balanced
+.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario sticky
 ```
 
-Defaults are 60 sessions, six turns, and 36 requests/minute per case. Turns remain ordered within each session. Standard-balancing cases omit session headers; affinity/probe cases send the four OpenCode headers. The standalone alias called `sticky` probes whether those headers influence routing; its configured pool has the same weights as `balanced`.
+Each case uses 60 six-turn sessions, eleven concurrent session workers, and 36 requests/minute, taking about ten minutes. Distinct early prompt prefixes separate the cases. The APIM single-backend route retains recovery; verify its measured distribution before accepting it as a strict reference.
 
-**Native affinity is disabled in this historical reproduction.** To evaluate the documented feature, create a separate alias in the AI Gateway portal and follow the [OpenCode session-affinity configuration](docs/REPORT.md#native-ai-gateway-configuration). Keep those new results separate from the checked-in pool probes.
-
-The APIM `single` route prefers b1 and retains the common recovery policy. Check its actual backend distribution before treating a run as a strict one-backend reference. The original measured reference served all 360 requests on b1; the later repeat recovered seven calls through other backends.
-
-**Keep fault injection separate from comparison runs.** It temporarily changes a lab backend and can affect other aliases using that backend.
-
-### Real client and focused checks
+### Client and edge checks
 
 ```powershell
 node .\scripts\opencode-check.mjs mock
@@ -71,73 +82,40 @@ node .\scripts\opencode-check.mjs mock
 .\scripts\Invoke-OpenCode.ps1 -Gateway apim -Direct
 .\scripts\Invoke-OpenCode.ps1 -Gateway aigateway -Direct
 .\scripts\Invoke-EdgeChecks.ps1
+.\scripts\Invoke-EdgeChecks.ps1 -Gateway aigateway
 .\scripts\Invoke-EdgeChecks.ps1 -CacheScope
-.\scripts\Invoke-Faults.ps1 -Gateway apim
-.\scripts\Invoke-Faults.ps1 -Gateway aigateway
-.\scripts\Invoke-Faults.ps1 -Gateway aigateway -ColdTransportOnly
 ```
 
-Observer mode forwards the unmodified model request through a loopback metadata recorder. Direct mode uses ordinary OpenCode provider settings. Each validation run keeps its own raw outputs and verifies the completed `ACK` response, session continuation, and a new session. The mock returns a cookie to test whether the client sends it back.
+Observer mode forwards the unmodified OpenCode request through a local metadata recorder; direct mode uses ordinary provider settings. Checks validate completed responses, continued and new sessions, cookies, non-streaming requests, and missing-header behavior.
 
-Fault scripts restore their endpoint in `finally`. An unmet acceptance check returns a nonzero exit code and retains evidence. The recorded isolated native transport probe returned HTTP 500 for 12 requests; reruns should record their actual outcomes. It uses a fresh provider/alias to isolate health state from earlier HTTP-error tests.
+### Correlate, test recovery, and publish
 
-### Exact configuration locations
-
-| Item | Location |
-|---|---|
-| APIM endpoints | API paths `/single/openai/v1`, `/balanced/openai/v1`, `/sticky/openai/v1`; operation `/chat/completions`. |
-| APIM policy | API-level `policy` on APIs `single`, `balanced`, and `sticky`; templates in [policies](policies/). |
-| APIM model endpoints | Backend entities `b1`, `b2`, `b3`; pool `pool`; named values `lab-endpoint-b1`, `lab-endpoint-b2`, `lab-endpoint-b3`, populated from private state. |
-| Native gateway routing | Workspace `default`; Foundry providers `b1`/`b2`/`b3`; model registration `lab-chat`; aliases `gpt-5-nano-single`, `gpt-5-nano-balanced`, `gpt-5-nano-sticky`. |
-| Native affinity follow-up | AI Gateway portal, workspace `default`, dedicated alias `gpt-5-nano-affinity`: **Session affinity** expression reads `x-opencode-session`; **Routing order** is **Session affinity before priority**. Not enabled by the reproduction script. |
-| Native client path | `/default/models/openai/v1/chat/completions`; request `model` selects the alias. |
-| OpenCode APIM provider | [Example configuration](examples/opencode-apim.json): `providers.lab.settings.baseURL`, `providers.lab.headers.Ocp-Apim-Subscription-Key`, `model`. |
-| OpenCode native provider | [Example configuration](examples/opencode-aigateway.json): `providers.lab.settings.baseURL`, `providers.lab.settings.apiKey`, `model`. |
-
-Use the Chat Completions provider package shown in the examples. Client-to-gateway credentials are environment references; gateway-to-model authentication uses managed identity.
-
-### Retain and publish evidence
-
-Collect model diagnostics before deletion. Correlation is exact on the returned `apim-request-id`; unknown matches remain unknown. Wait for diagnostic ingestion if necessary.
+Collect actual serving-account evidence from model logs. Allow time for diagnostic ingestion; enrichment exposes incomplete coverage.
 
 ```powershell
 .\scripts\Get-LabLogs.ps1 `
   -Query 'AzureDiagnostics | where Category in ("RequestResponse", "AzureOpenAIRequestUsage") | summarize by CorrelationId, Resource' `
   -OutputName 'backend-correlations.json' | Out-Null
 node .\scripts\enrich.mjs
-.\scripts\Remove-Lab.ps1 -ConfirmCleanup
-node .\scripts\publish-results.mjs
+
+.\scripts\Invoke-Faults.ps1 -Gateway apim
+.\scripts\Invoke-Faults.ps1 -Gateway aigateway
 ```
 
-The publisher expects the complete measurement, client, edge, cache-scope, fault, and cleanup artifacts above. It exports allowlisted fields, replaces session identifiers with ordinals, and omits credentials, resource IDs, hostnames, raw tracing IDs, and error bodies. Original evidence remains private under `.lab`.
+Run recovery checks after the comparison and its enrichment. Native recovery checks select sessions whose preferred backends were independently verified. A b1-only alias checks that the backend is healthy before injection and actually returns the controlled error afterward. Tests temporarily change one lab endpoint, retain evidence, and restore it in `finally`. An unmet check returns a nonzero exit code; the [report](docs/REPORT.md#pre-response-recovery) documents the native preview's current recovery boundary.
 
-The checked-in results contain both full comparison rounds. The first used twelve concurrent sessions; the repeat used eleven to avoid accidental alignment with three-way round-robin scheduling. All six repeat cases have 100% serving-backend correlation coverage.
-
-## Safety and sharing
-
-- Gateway-to-model authentication uses managed identity. Model API keys are disabled.
-- Runtime credentials, local OpenCode configuration, raw private evidence, and resource state are excluded from Git.
-- Publish only reviewed, sanitized results. Never add Azure token caches or `.lab` to version control.
-- Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing).
-- No license is currently specified for the original lab content.
-- Azure service icons in the diagram retain Microsoft's artwork and follow the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).
-
-## Cleanup
-
-After saving evidence, run:
+Repeat log collection and enrichment after recovery. Then:
 
 ```powershell
 .\scripts\Remove-Lab.ps1 -ConfirmCleanup
+node .\scripts\publish-results.mjs
+node .\scripts\validate-results.mjs
 ```
 
-The script checks the lab manifest, ownership tags, and every resource against the expected resource roots before deleting the dedicated group. Unexpected resources stop cleanup. Subscription-level provider registrations are retained. Platform soft-delete records are not purged.
+Publication exports allowlisted fields and session ordinals, omitting credentials, resource IDs, hostnames, raw tracing IDs, and error bodies. Validation checks complete responses, independent backend evidence, session distribution, affinity, and cache-reference tolerance.
 
-The recorded execution's cleanup status is in [lifecycle evidence](results/lifecycle.json).
+## Cleanup and sharing
 
-## References
+Only run cleanup when authorized. [Remove-Lab.ps1](scripts/Remove-Lab.ps1) checks ownership tags and the inventory against the manifest before deleting the dedicated group, then verifies absence. Unexpected resources stop deletion. Provider registrations and platform soft-delete records are retained.
 
-- [Standalone Azure AI Gateway overview](https://learn.microsoft.com/azure/ai-gateway/overview)
-- [Native session affinity](https://ai.gateway.azure.com/docs/models/session-affinity) and [configuration guide](https://ai.gateway.azure.com/docs/models/guides/configure-session-affinity)
-- [Official AI Gateway CLI](https://github.com/Azure/aigateway/tree/main/cli)
-- [API Management backends](https://learn.microsoft.com/azure/api-management/backends)
-- [Azure OpenAI prompt caching](https://learn.microsoft.com/azure/foundry/openai/how-to/prompt-caching)
+Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing). Review sanitized outputs before publishing; never commit `.lab` or Azure token caches. No license is specified for the original lab content. Azure service artwork follows the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).

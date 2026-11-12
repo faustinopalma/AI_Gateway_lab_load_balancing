@@ -63,7 +63,7 @@ export async function callModel({ url, key, keyHeader = 'Authorization', body, s
     let done = false;
     let finished = false;
     const decoder = new TextDecoder();
-    for await (const chunk of response.body) {
+    stream: for await (const chunk of response.body) {
       buffer = (buffer + decoder.decode(chunk, { stream: true })).replace(/\r\n/g, '\n');
       let end;
       while ((end = buffer.indexOf('\n\n')) !== -1) {
@@ -74,7 +74,10 @@ export async function callModel({ url, key, keyHeader = 'Authorization', body, s
         const event = parseEvent(data);
         if (event.error) result.error = JSON.stringify(event.error);
         if (event.content && result.ttftMs === null) result.ttftMs = performance.now() - started;
-        if (event.done) done = true;
+        if (event.done) {
+          done = true;
+          break stream;
+        }
         if (event.finished) finished = true;
         assignUsage(event.usage);
       }
@@ -128,6 +131,9 @@ async function main() {
   }
   const state = JSON.parse(await readFile(resolve('.lab', 'state.json'), 'utf8'));
   if (Date.now() - Date.parse(state.startedUtc) > 8 * 3600000) throw new Error('Lab lifetime limit exceeded; stop and clean up.');
+  if (gateway === 'aigateway' && scenario === 'sticky' && state.aiGateway.sessionAffinity?.enabled !== true) {
+    throw new Error('Configure native session affinity before measuring the sticky alias.');
+  }
   const run = `${gateway}-${scenario}-${randomUUID().slice(0, 8)}`;
   const folder = resolve('.lab', 'runs', run);
   await mkdir(folder, { recursive: true });
@@ -171,9 +177,10 @@ async function main() {
   }
   await Promise.all(Array.from({ length: Math.min(workers, sessions) }, worker));
   const summary = { gateway, scenario, run, sessions, turns, rpm, workers: Math.min(workers, sessions),
-    sessionHeadersSent: scenario !== 'balanced', ...summarize(records) };
+    sessionHeadersSent: scenario !== 'balanced', affinityEnabled: scenario === 'sticky', ...summarize(records) };
   await writeFile(resolve(folder, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
   console.log(JSON.stringify(summary, null, 2));
+  if (summary.failed) process.exitCode = 1;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -18,7 +18,7 @@ function metrics(record) {
   };
 }
 const summaryFields = [
-  'run', 'gateway', 'scenario', 'workers', 'turns', 'rpm', 'sessionHeadersSent',
+  'run', 'gateway', 'scenario', 'workers', 'turns', 'rpm', 'sessionHeadersSent', 'affinityEnabled',
   'requests', 'completed', 'failed', 'sessions', 'usageCoverage', 'backendCoverage', 'resourceLogCoverage',
   'sessionsWithKnownBackend', 'sessionsSwitchingBackend', 'sessionDistribution', 'requestDistribution',
   'initialSessionDistribution', 'expectedFirstAttemptRatio', 'attemptCoverage', 'retriedRequests',
@@ -57,12 +57,12 @@ for (const entry of await readdir(resolve('.lab', 'faults'), { withFileTypes: tr
   if (!entry.isDirectory()) continue;
   const path = resolve('.lab', 'faults', entry.name);
   if (!(await readdir(path)).includes('summary.json')) continue;
-  const summary = await read(resolve(path, 'summary.json'));
+  const summary = await read(resolve('.lab', 'enriched', entry.name, 'summary.json'));
   const restoration = await read(resolve(path, 'restoration.json'));
-  const rows = await read(resolve(path, 'requests.json'));
+  const rows = await read(resolve('.lab', 'enriched', entry.name, 'requests.json'));
   const sessions = new Map();
   const tests = Object.fromEntries(Object.entries(summary.tests).map(([name, result]) => [name, {
-    ...pick(result, ['requests', 'completed', 'failed']),
+    ...pick(result, ['faultVerified', 'requests', 'completed', 'failed', 'resourceLogCoverage', 'sessionsMigrated', 'sessionsReturnedHome']),
     retried: summary.gateway === 'aigateway' ? null : result.retried,
     bufferedRecovery: summary.gateway === 'aigateway' ? null : result.bufferedRecovery,
   }]));
@@ -76,14 +76,15 @@ for (const entry of await readdir(resolve('.lab', 'faults'), { withFileTypes: tr
   });
 }
 for (const fault of faults) {
-  const latest = faults.filter(other => other.gateway === fault.gateway && !other.cold)
-    .sort((a, b) => Date.parse(b.restoredUtc) - Date.parse(a.restoredUtc))[0];
-  fault.evidenceRole = fault.cold ? 'Isolated transport check' :
-    (fault === latest ? 'Latest sequential fault checks' : 'Earlier exploratory sequence');
+  fault.evidenceRole = fault.cold ? 'Isolated transport check' : 'Pre-response recovery checks';
 }
 await save('faults.json', faults);
-const edges = await read(resolve('.lab', 'edge-checks.json'));
+const edges = await read(resolve('.lab', 'enriched', 'edge-checks.json'));
 await save('edge-checks.json', edges.map(record => ({
+  ...pick(record, ['name', 'expectedStatus', 'passed']), ...metrics(record),
+})));
+const nativeEdges = await read(resolve('.lab', 'enriched', 'native-edge-checks.json'));
+await save('native-edge-checks.json', nativeEdges.map(record => ({
   ...pick(record, ['name', 'expectedStatus', 'passed']), ...metrics(record),
 })));
 await save('cache-scope.json', (await read(resolve('.lab', 'enriched', 'cache-scope.json'))).map(record => ({
@@ -101,11 +102,16 @@ for (const gateway of ['mock', 'apim', 'aigateway', 'apim-direct', 'aigateway-di
   const captured = await read(resolve(path, 'request-metadata.json'));
   const first = captured[0];
   const ids = captured.map(record => record.sessionHeaders['x-opencode-session']);
+  const routing = ['apim', 'aigateway'].includes(gateway)
+    ? await read(resolve('.lab', 'enriched', `opencode-${gateway}.json`)) : null;
   clients.push({
     gateway, version: conversations[0].version, completedConversations: conversations.filter(record => record.completed).length,
     continuationPreservedSession: conversations[0].session === conversations[1].session,
     newConversationChangedSession: conversations[0].session !== conversations[2].session,
     capturedRequests: captured.length,
+    servingBackendVerified: routing ? routing.every(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log') : null,
+    continuedSessionBackendStable: routing ? routing[0].backend === routing[1].backend : null,
+    servingBackends: routing ? routing.map(record => record.backend) : null,
     ...(first ? {
       sessionHeaders: Object.keys(first.sessionHeaders),
       allSessionHeadersAgree: captured.every(record => new Set(Object.values(record.sessionHeaders)).size === 1),

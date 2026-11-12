@@ -1,6 +1,6 @@
 {
-  "startedUtc": "2026-11-12T19:40:04.2908308Z",
-  "cleanedUtc": "2026-11-12T20:55:14.8975789Z",
+  "startedUtc": "2026-11-12T22:19:01.0653123Z",
+  "cleanedUtc": "2026-11-12T23:42:21.0427107Z",
   "cleanupVerified": true,
   "inventoriedResources": [
     {
@@ -46,7 +46,7 @@
       "expectedScopeVerified": true
     }
   ],
-  "comparisonInputTokens": 22733280,
-  "comparisonCachedTokens": 17207424,
-  "comparisonOutputTokens": 43466
+  "comparisonInputTokens": 11365920,
+  "comparisonCachedTokens": 8681088,
+  "comparisonOutputTokens": 21600
 }

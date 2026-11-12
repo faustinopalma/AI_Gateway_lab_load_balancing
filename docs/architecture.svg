@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1120" height="660" viewBox="0 0 1120 660">
   <title>Two gateway configurations share three Azure OpenAI model backends</title>
-  <desc>OpenCode and a repeatable test driver connect to Azure API Management or standalone Azure AI Gateway in separate runs. Straight connectors lead to the same group of three Azure OpenAI deployments. Service icons retain the original Microsoft Azure artwork.</desc>
+  <desc>OpenCode and a repeatable test driver connect to Azure API Management or standalone Azure AI Gateway. Each gateway has a straight connector to each of the same three Azure OpenAI deployments. Service icons retain the original Microsoft Azure artwork.</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#52657d"/></marker>
+    <marker id="apim-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#397eb5"/></marker>
+    <marker id="aigateway-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#8a65b9"/></marker>
     <symbol id="azure-apim-icon" viewBox="0 0 18 18">
       <defs>
         <linearGradient id="apim-cloud" x1="9" y1="16.82" x2="9" y2="1.18" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#198ab3"/><stop offset="0.09" stop-color="#1f9dc4"/><stop offset="0.24" stop-color="#28b5d9"/><stop offset="0.4" stop-color="#2dc6e9"/><stop offset="0.57" stop-color="#31d1f2"/><stop offset="0.78" stop-color="#32d4f5"/></linearGradient>
@@ -36,6 +38,8 @@
       .small { font-size: 14px; fill: #52657d; }
       .box { stroke-width: 1.6; }
       .link { stroke: #52657d; stroke-width: 2; marker-end: url(#arrow); }
+      .apim-link { stroke: #397eb5; marker-end: url(#apim-arrow); }
+      .aigateway-link { stroke: #8a65b9; marker-end: url(#aigateway-arrow); }
     </style>
   </defs>
   <rect width="1120" height="660" fill="#f6f9fc"/>
@@ -45,12 +49,6 @@
   <text class="small" x="62" y="146">CLIENTS</text>
   <text class="small" x="374" y="146">GATEWAYS - TESTED SEPARATELY</text>
   <text class="small" x="794" y="146">SHARED MODEL BACKENDS</text>
-  <g id="connections" inkscape:label="Straight connectors">
-    <line class="link" x1="294" y1="285" x2="372" y2="247"/>
-    <line class="link" x1="294" y1="375" x2="372" y2="419"/>
-    <line class="link" x1="688" y1="247" x2="792" y2="247"/>
-    <line class="link" x1="688" y1="419" x2="792" y2="419"/>
-  </g>
   <g id="clients" inkscape:label="OpenCode and test driver">
     <rect class="box" x="62" y="245" width="232" height="170" rx="12" fill="#eaf0f8" stroke="#91a8c1"/>
     <text class="heading" x="86" y="281">OpenCode CLI</text>
@@ -71,7 +69,7 @@
     <use id="aigateway-service-icon" href="#azure-aigateway-icon" x="390" y="377" width="50" height="50"/>
     <text class="heading" x="452" y="396">Azure AI Gateway</text>
     <text class="small" x="452" y="419">Standalone preview</text>
-    <text class="body" x="390" y="452">Model-alias routing</text>
+    <text class="body" x="390" y="452">Native session affinity</text>
   </g>
   <g id="backends" inkscape:label="The same three Azure OpenAI accounts">
     <rect class="box" x="792" y="176" width="264" height="344" rx="14" fill="#f7fafc" stroke="#b9c9d8"/>
@@ -95,6 +93,16 @@
       <text class="small" x="886" y="462">gpt-5-nano</text>
     </g>
     <text class="small" x="810" y="509">Same model and deployment name</text>
+  </g>
+  <g id="connections" inkscape:label="Straight connectors">
+    <line class="link" x1="294" y1="285" x2="372" y2="247"/>
+    <line class="link" x1="294" y1="375" x2="372" y2="419"/>
+    <line id="apim-to-b1" class="link apim-link" x1="688" y1="225" x2="810" y2="244"/>
+    <line id="apim-to-b2" class="link apim-link" x1="688" y1="247" x2="810" y2="338"/>
+    <line id="apim-to-b3" class="link apim-link" x1="688" y1="269" x2="810" y2="432"/>
+    <line id="aigateway-to-b1" class="link aigateway-link" x1="688" y1="397" x2="810" y2="276"/>
+    <line id="aigateway-to-b2" class="link aigateway-link" x1="688" y1="419" x2="810" y2="370"/>
+    <line id="aigateway-to-b3" class="link aigateway-link" x1="688" y1="441" x2="810" y2="464"/>
   </g>
   <text class="small" x="62" y="542">Session headers identify conversations; no client cookies. Gateway-to-model authentication uses managed identity.</text>
   <text class="heading" x="42" y="601">What we measure</text>

@@ -49,6 +49,68 @@ if ((await readdir(resolve('.lab'))).includes('cache-scope.json')) {
   const records = JSON.parse(await readFile(resolve('.lab', 'cache-scope.json'), 'utf8')).map(enrichRecord);
   await writeFile(resolve('.lab', 'enriched', 'cache-scope.json'), JSON.stringify(records, null, 2) + '\n');
 }
+if ((await readdir(resolve('.lab'))).includes('edge-checks.json')) {
+  const records = JSON.parse(await readFile(resolve('.lab', 'edge-checks.json'), 'utf8')).map(enrichRecord);
+  if (records.some(record => record.complete && record.backendEvidence !== 'Azure OpenAI resource diagnostic log')) {
+    throw new Error('APIM edge checks require complete serving-backend log correlation for completed model responses.');
+  }
+  await writeFile(resolve('.lab', 'enriched', 'edge-checks.json'), JSON.stringify(records, null, 2) + '\n');
+}
+if ((await readdir(resolve('.lab'))).includes('native-edge-checks.json')) {
+  const records = JSON.parse(await readFile(resolve('.lab', 'native-edge-checks.json'), 'utf8')).map(enrichRecord);
+  await writeFile(resolve('.lab', 'enriched', 'native-edge-checks.json'), JSON.stringify(records, null, 2) + '\n');
+  if (records.some(record => record.backendEvidence !== 'Azure OpenAI resource diagnostic log')) {
+    throw new Error('Native edge checks require complete serving-backend log correlation.');
+  }
+  for (const session of new Set(records.map(record => record.session).filter(Boolean))) {
+    if (new Set(records.filter(record => record.session === session).map(record => record.backend)).size !== 1) {
+      throw new Error('Native edge-case session changed serving backend.');
+    }
+  }
+  if ((await readdir(resolve('.lab'))).includes('faults')) {
+    for (const entry of await readdir(resolve('.lab', 'faults'), { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const source = resolve('.lab', 'faults', entry.name);
+      if (!(await readdir(source)).includes('summary.json')) continue;
+      const summary = JSON.parse(await readFile(resolve(source, 'summary.json'), 'utf8'));
+      const records = JSON.parse(await readFile(resolve(source, 'requests.json'), 'utf8')).map(enrichRecord);
+      for (const [test, result] of Object.entries(summary.tests)) {
+        const during = records.filter(record => record.test === test && record.phase === 'during' && record.complete);
+        const after = records.filter(record => record.test === test && record.phase === 'after' && record.complete);
+        result.resourceLogCoverage = during.length
+          ? during.filter(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log').length / during.length : null;
+        if (result.faultVerified && result.resourceLogCoverage === 1 && during.some(record => record.backend === 'b1')) {
+          throw new Error(`${summary.gateway}/${test}: a completed fault-phase request still reached b1.`);
+        }
+        result.sessionsMigrated = result.resourceLogCoverage === 1
+          ? new Set(during.filter(record => record.backend !== record.expectedBackend).map(record => record.session)).size : null;
+        result.sessionsReturnedHome = after.every(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log')
+          ? new Set(after.filter(record => record.backend === record.expectedBackend).map(record => record.session)).size : null;
+      }
+      const folder = resolve('.lab', 'enriched', entry.name);
+      await mkdir(folder, { recursive: true });
+      await writeFile(resolve(folder, 'requests.json'), JSON.stringify(records, null, 2) + '\n');
+      await writeFile(resolve(folder, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
+    }
+  }
+  if ((await readdir(resolve('.lab'))).includes('opencode')) {
+    for (const gateway of ['apim', 'aigateway']) {
+      const parent = resolve('.lab', 'opencode', gateway);
+      const runs = (await readdir(parent, { withFileTypes: true }))
+        .filter(entry => entry.isDirectory() && /^\d{4}-\d\d-\d\dT/.test(entry.name)).map(entry => entry.name).sort();
+      if (!runs.length) throw new Error(`Missing observed OpenCode run for ${gateway}.`);
+      const captured = JSON.parse(await readFile(resolve(parent, runs.at(-1), 'request-metadata.json'), 'utf8')).map(enrichRecord);
+      if (captured.length < 3 || captured.some(record => record.backendEvidence !== 'Azure OpenAI resource diagnostic log')) {
+        throw new Error(`OpenCode ${gateway} requires complete serving-backend log correlation.`);
+      }
+      if (captured[0].backend !== captured[1].backend) throw new Error(`OpenCode ${gateway} continuation changed backend.`);
+      await writeFile(resolve('.lab', 'enriched', `opencode-${gateway}.json`), JSON.stringify(captured, null, 2) + '\n');
+    }
+  }
+  if (new Set(records.filter(record => record.name === 'no-session-header').map(record => record.backend)).size !== 3) {
+    throw new Error('Native requests without session headers did not reach all three backends.');
+  }
+}
 console.log(JSON.stringify(summaries.map(summary => ({
   gateway: summary.gateway, scenario: summary.scenario, run: summary.run,
   completed: summary.completed, backendCoverage: summary.backendCoverage,

@@ -1,0 +1,104 @@
+[
+  {
+    "gateway": "mock",
+    "version": "2.2.5",
+    "completedConversations": 3,
+    "continuationPreservedSession": true,
+    "newConversationChangedSession": true,
+    "capturedRequests": 3,
+    "servingBackendVerified": null,
+    "continuedSessionBackendStable": null,
+    "servingBackends": null,
+    "sessionHeaders": [
+      "x-opencode-session",
+      "x-opencode-session-id",
+      "x-session-affinity",
+      "x-session-id"
+    ],
+    "allSessionHeadersAgree": true,
+    "observedContinuationPreservedSession": true,
+    "observedNewConversationChangedSession": true,
+    "projectStable": true,
+    "traceChanged": true,
+    "cookiesReturned": false,
+    "streaming": true
+  },
+  {
+    "gateway": "apim",
+    "version": "2.2.5",
+    "completedConversations": 3,
+    "continuationPreservedSession": true,
+    "newConversationChangedSession": true,
+    "capturedRequests": 3,
+    "servingBackendVerified": true,
+    "continuedSessionBackendStable": true,
+    "servingBackends": [
+      "b2",
+      "b2",
+      "b2"
+    ],
+    "sessionHeaders": [
+      "x-opencode-session",
+      "x-opencode-session-id",
+      "x-session-affinity",
+      "x-session-id"
+    ],
+    "allSessionHeadersAgree": true,
+    "observedContinuationPreservedSession": true,
+    "observedNewConversationChangedSession": true,
+    "projectStable": true,
+    "traceChanged": true,
+    "cookiesReturned": false,
+    "streaming": true
+  },
+  {
+    "gateway": "aigateway",
+    "version": "2.2.5",
+    "completedConversations": 3,
+    "continuationPreservedSession": true,
+    "newConversationChangedSession": true,
+    "capturedRequests": 3,
+    "servingBackendVerified": true,
+    "continuedSessionBackendStable": true,
+    "servingBackends": [
+      "b2",
+      "b2",
+      "b1"
+    ],
+    "sessionHeaders": [
+      "x-opencode-session",
+      "x-opencode-session-id",
+      "x-session-affinity",
+      "x-session-id"
+    ],
+    "allSessionHeadersAgree": true,
+    "observedContinuationPreservedSession": true,
+    "observedNewConversationChangedSession": true,
+    "projectStable": true,
+    "traceChanged": true,
+    "cookiesReturned": false,
+    "streaming": true
+  },
+  {
+    "gateway": "apim-direct",
+    "version": "2.2.5",
+    "completedConversations": 3,
+    "continuationPreservedSession": true,
+    "newConversationChangedSession": true,
+    "capturedRequests": 0,
+    "servingBackendVerified": null,
+    "continuedSessionBackendStable": null,
+    "servingBackends": null
+  },
+  {
+    "gateway": "aigateway-direct",
+    "version": "2.2.5",
+    "completedConversations": 3,
+    "continuationPreservedSession": true,
+    "newConversationChangedSession": true,
+    "capturedRequests": 0,
+    "servingBackendVerified": null,
+    "continuedSessionBackendStable": null,
+    "servingBackends": null
+  }
+]

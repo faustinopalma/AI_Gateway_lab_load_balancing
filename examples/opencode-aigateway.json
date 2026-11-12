@@ -3,7 +3,7 @@
   "model": "lab/gpt-5-nano-sticky",
   "providers": {
     "lab": {
-      "name": "Standalone AI Gateway session-header probe",
+      "name": "Standalone AI Gateway session affinity",
       "package": "@opencode/ai/providers/openai/chat",
       "settings": {
         "baseURL": "https://<assigned-runtime-hostname>/default/models/openai/v1",
