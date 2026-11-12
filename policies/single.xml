@@ -1,0 +1,79 @@
+<policies>
+  <inbound>
+    <base />
+    <set-variable name="session-error" value="@{
+    string first = null;
+    foreach (var name in new string[] { &quot;x-opencode-session&quot;,&quot;x-opencode-session-id&quot;,&quot;x-session-affinity&quot;,&quot;x-session-id&quot; }) {
+      string[] values;
+      if (!context.Request.Headers.TryGetValue(name, out values)) { continue; }
+      if (values.Length != 1) { return &quot;Multiple session header values&quot;; }
+      var value = values[0];
+      if (String.IsNullOrEmpty(value) || value.Length &gt; 256 || !System.Text.RegularExpressions.Regex.IsMatch(value, &quot;^[!-~]+$&quot;)) { return &quot;Invalid session identifier&quot;; }
+      if (first != null &amp;&amp; first != value) { return &quot;Conflicting session identifiers&quot;; }
+      first = value;
+    }
+    return &quot;&quot;;
+  }" />
+    <choose><when condition="@(!String.IsNullOrEmpty((string)context.Variables[&quot;session-error&quot;]))">
+      <return-response><set-status code="400" reason="Invalid session headers" /><set-body>{"error":{"message":"Invalid or conflicting session headers"}}</set-body></return-response>
+    </when></choose>
+    <set-variable name="session-header" value="@{ foreach (var name in new string[] { &quot;x-opencode-session&quot;,&quot;x-opencode-session-id&quot;,&quot;x-session-affinity&quot;,&quot;x-session-id&quot; }) { if (context.Request.Headers.ContainsKey(name)) { return name; } } return &quot;&quot;; }" />
+    <set-variable name="session" value="@(context.Request.Headers.GetValueOrDefault((string)context.Variables[&quot;session-header&quot;], &quot;&quot;))" />
+    <set-variable name="home" value="@(0)" />
+    <set-variable name="attempts" value="@(0)" />
+    <set-variable name="attempt-log" value="@(&quot;&quot;)" />
+    <set-variable name="attempt-path" value="@(&quot;&quot;)" />
+    <set-variable name="selected-backend" value="@(&quot;pool&quot;)" />
+    <authentication-managed-identity resource="https://cognitiveservices.azure.com" ignore-error="false" />
+    <set-header name="Ocp-Apim-Subscription-Key" exists-action="delete" />
+    <rewrite-uri template="/chat/completions" copy-unmatched-params="false" />
+  </inbound>
+  <backend>
+    <retry condition="@(context.Response != null &amp;&amp; (context.Response.StatusCode == 429 || context.Response.StatusCode &gt;= 500))" count="2" interval="1" first-fast-retry="true">
+      <set-variable name="attempts" value="@((int)context.Variables[&quot;attempts&quot;] + 1)" />
+      <set-variable name="selected-backend" value="@(&quot;b&quot; + ((((int)context.Variables[&quot;home&quot;] + (int)context.Variables[&quot;attempts&quot;] - 1) % 3) + 1).ToString())" />
+       <set-backend-service backend-id="@((string)context.Variables[&quot;selected-backend&quot;])" />
+      <set-variable name="attempt-path" value="@((string)context.Variables[&quot;attempt-path&quot;] + (string)context.Variables[&quot;selected-backend&quot;] + &quot;;&quot;)" />
+      <forward-request timeout="45" buffer-request-body="true" buffer-response="false" />
+      <set-variable name="attempt-log" value="@((string)context.Variables[&quot;attempt-log&quot;] + (string)context.Variables[&quot;selected-backend&quot;] + &quot;:&quot; + context.Response.StatusCode.ToString() + &quot;;&quot;)" />
+    </retry>
+  </backend>
+  <outbound>
+    <base />
+    <set-header name="x-lab-backend-request-id" exists-action="override"><value>@(context.Response.Headers.GetValueOrDefault("apim-request-id", ""))</value></set-header>
+    <set-header name="x-lab-backend" exists-action="override"><value>@((string)context.Variables["selected-backend"])</value></set-header>
+    <set-header name="x-lab-backend-type" exists-action="override"><value>@(context.Backend.Type.ToString())</value></set-header>
+    <set-header name="x-lab-attempts" exists-action="override"><value>@(((int)context.Variables["attempts"]).ToString())</value></set-header>
+    <set-header name="x-lab-session-header" exists-action="override"><value>@((string)context.Variables["session-header"])</value></set-header>
+    <set-header name="x-lab-attempt-log" exists-action="override"><value>@((string)context.Variables["attempt-log"])</value></set-header>
+    <set-header name="x-lab-attempt-path" exists-action="override"><value>@((string)context.Variables["attempt-path"])</value></set-header>
+  </outbound>
+  <on-error>
+    <!-- A transport-recovery response is buffered; normal streaming remains unbuffered. -->
+    <choose><when condition="@((context.LastError.Reason == &quot;BackendConnectionFailure&quot; || context.LastError.Reason == &quot;Timeout&quot;) &amp;&amp; (int)context.Variables[&quot;attempts&quot;] &lt; 3)">
+      <set-variable name="attempt-log" value="@((string)context.Variables[&quot;attempt-log&quot;] + (string)context.Variables[&quot;selected-backend&quot;] + &quot;:&quot; + context.LastError.Reason + &quot;;&quot;)" />
+      <retry condition="@((int)context.Variables[&quot;attempts&quot;] &lt; 3 &amp;&amp; (context.Variables[&quot;recovery&quot;] == null || ((IResponse)context.Variables[&quot;recovery&quot;]).StatusCode == 429 || ((IResponse)context.Variables[&quot;recovery&quot;]).StatusCode &gt;= 500))" count="1" interval="1" first-fast-retry="true">
+        <set-variable name="attempts" value="@((int)context.Variables[&quot;attempts&quot;] + 1)" />
+        <set-variable name="selected-backend" value="@(&quot;b&quot; + ((((int)context.Variables[&quot;home&quot;] + (int)context.Variables[&quot;attempts&quot;] - 1) % 3) + 1).ToString())" />
+        <set-variable name="attempt-path" value="@((string)context.Variables[&quot;attempt-path&quot;] + (string)context.Variables[&quot;selected-backend&quot;] + &quot;;&quot;)" />
+        <send-request mode="copy" response-variable-name="recovery" timeout="45" ignore-error="true">
+          <set-url>@((string)context.Variables["selected-backend"] == "b1" ? "{{lab-endpoint-b1}}/openai/v1/chat/completions" : (string)context.Variables["selected-backend"] == "b2" ? "{{lab-endpoint-b2}}/openai/v1/chat/completions" : "{{lab-endpoint-b3}}/openai/v1/chat/completions")</set-url>
+          <set-method>POST</set-method>
+          <set-body>@(context.Request.Body.As&lt;string&gt;(preserveContent: true))</set-body>
+        </send-request>
+        <set-variable name="attempt-log" value="@((string)context.Variables[&quot;attempt-log&quot;] + (string)context.Variables[&quot;selected-backend&quot;] + &quot;:&quot; + (context.Variables[&quot;recovery&quot;] == null ? &quot;transport-error&quot; : ((IResponse)context.Variables[&quot;recovery&quot;]).StatusCode.ToString()) + &quot;;&quot;)" />
+      </retry>
+      <choose><when condition="@(context.Variables[&quot;recovery&quot;] != null)">
+        <return-response response-variable-name="recovery">
+          <set-header name="x-lab-backend" exists-action="override"><value>@((string)context.Variables["selected-backend"])</value></set-header>
+          <set-header name="x-lab-attempts" exists-action="override"><value>@(((int)context.Variables["attempts"]).ToString())</value></set-header>
+          <set-header name="x-lab-attempt-log" exists-action="override"><value>@((string)context.Variables["attempt-log"])</value></set-header>
+          <set-header name="x-lab-attempt-path" exists-action="override"><value>@((string)context.Variables["attempt-path"])</value></set-header>
+          <set-header name="x-lab-backend-request-id" exists-action="override"><value>@(((IResponse)context.Variables["recovery"]).Headers.GetValueOrDefault("apim-request-id", ""))</value></set-header>
+          <set-header name="x-lab-recovery-buffered" exists-action="override"><value>true</value></set-header>
+        </return-response>
+      </when></choose>
+    </when></choose>
+    <return-response><set-status code="503" reason="Lab request failed" /><set-header name="x-lab-error" exists-action="override"><value>@(context.LastError.Reason)</value></set-header><set-body>{"error":{"message":"Gateway recovery exhausted or policy error; inspect lab diagnostics"}}</set-body></return-response>
+  </on-error>
+</policies>

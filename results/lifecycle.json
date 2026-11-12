@@ -1,0 +1,52 @@
+{
+  "startedUtc": "2026-11-12T19:40:04.2908308Z",
+  "cleanedUtc": "2026-11-12T20:55:14.8975789Z",
+  "cleanupVerified": true,
+  "inventoriedResources": [
+    {
+      "type": "Microsoft.ApiManagement/service",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.CognitiveServices/accounts",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.ApiManagement/aigateways",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "purposeTagVerified": true,
+      "ownerTagVerified": true,
+      "expectedScopeVerified": true
+    }
+  ],
+  "comparisonInputTokens": 22733280,
+  "comparisonCachedTokens": 17207424,
+  "comparisonOutputTokens": 43466
+}

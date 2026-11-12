@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1120" height="660" viewBox="0 0 1120 660">
+  <title>LLM session-affinity laboratory: two gateways, the same three model backends</title>
+  <desc>OpenCode and a controlled test driver call APIM and the standalone Azure AI Gateway separately. Both configurations use the same three independently addressable model deployments.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#52657d"/></marker>
+    <style>
+      text { font-family: Arial, sans-serif; fill: #18304a; }
+      .title { font-size: 29px; font-weight: bold; }
+      .heading { font-size: 20px; font-weight: bold; }
+      .body { font-size: 16px; }
+      .small { font-size: 14px; fill: #52657d; }
+      .box { stroke-width: 2; rx: 14; }
+      .link { fill: none; stroke: #52657d; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1120" height="660" fill="#f6f9fc"/>
+  <text class="title" x="42" y="52">One conversation, one backend</text>
+  <text class="body" x="42" y="83">Compare APIM and the new standalone Azure AI Gateway with the same workload.</text>
+  <rect x="34" y="112" width="1052" height="452" rx="18" fill="#ffffff" stroke="#d4dee8"/>
+  <text class="small" x="62" y="144">CLIENTS</text>
+  <text class="small" x="384" y="144">GATEWAYS - TESTED SEPARATELY</text>
+  <text class="small" x="824" y="144">MODEL BACKENDS</text>
+  <g id="clients">
+    <rect class="box" x="62" y="236" width="232" height="166" fill="#eaf0f8" stroke="#91a8c1"/>
+    <text class="heading" x="86" y="271">OpenCode CLI</text>
+    <text class="body" x="86" y="300">Real conversations</text>
+    <path d="M86 317 H267" stroke="#b5c5d6"/>
+    <text class="heading" x="86" y="345">Test driver</text>
+    <text class="body" x="86" y="374">Repeatable measurements</text>
+  </g>
+  <g id="apim">
+    <rect class="box" x="382" y="184" width="302" height="110" fill="#e7f2ff" stroke="#2b78bd"/>
+    <text class="heading" x="404" y="217">Azure API Management</text>
+    <text class="body" x="404" y="246">Native pool + custom affinity</text>
+    <text class="small" x="404" y="273">Basic v2 / managed identity</text>
+  </g>
+  <g id="aigateway">
+    <rect class="box" x="382" y="362" width="302" height="110" fill="#e9f5ef" stroke="#438667"/>
+    <text class="heading" x="404" y="395">Standalone AI Gateway</text>
+    <text class="body" x="404" y="424">Native model-alias routing</text>
+    <text class="small" x="404" y="451">Preview / managed identity</text>
+  </g>
+  <g id="backends">
+    <rect class="box" x="820" y="177" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
+    <text class="heading" x="843" y="211">Backend 1</text>
+    <text class="body" x="843" y="241">Independent deployment</text>
+    <rect class="box" x="820" y="289" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
+    <text class="heading" x="843" y="323">Backend 2</text>
+    <text class="body" x="843" y="353">Independent deployment</text>
+    <rect class="box" x="820" y="401" width="228" height="90" fill="#fff6e8" stroke="#be944b"/>
+    <text class="heading" x="843" y="435">Backend 3</text>
+    <text class="body" x="843" y="465">Independent deployment</text>
+  </g>
+  <g id="connections">
+    <path class="link" d="M294 277 H332 V239 H382"/>
+    <path class="link" d="M294 363 H332 V417 H382"/>
+    <path class="link" d="M684 215 H752 V204 H820"/>
+    <path class="link" d="M684 239 H735 V316 H820"/>
+    <path class="link" d="M684 264 H718 V428 H820"/>
+    <path class="link" d="M684 392 H776 V241 H820"/>
+    <path class="link" d="M684 417 H759 V353 H820"/>
+    <path class="link" d="M684 442 H742 V465 H820"/>
+  </g>
+  <text class="small" x="62" y="534">Same model and deployment name on all backends. Session headers identify conversations; no client cookies.</text>
+  <text class="heading" x="42" y="602">Measure three things</text>
+  <text class="body" x="42" y="631">Session distribution</text>
+  <text class="body" x="337" y="631">Backend switches within a session</text>
+  <text class="body" x="768" y="631">Cached input tokens</text>
+</svg>

@@ -1,0 +1,14 @@
+{
+  "name": "azure-llm-cache-affinity-lab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reproducible, cookie-free LLM session-affinity laboratory.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "measure": "node scripts/measure.mjs"
+  }
+}

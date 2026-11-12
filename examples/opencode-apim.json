@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "lab/gpt-5-nano",
+  "providers": {
+    "lab": {
+      "name": "APIM session-affinity laboratory",
+      "package": "@opencode/ai/providers/openai/chat",
+      "settings": {
+        "baseURL": "https://<apim-name>.azure-api.net/sticky/openai/v1",
+        "apiKey": "{env:APIM_SUBSCRIPTION_KEY}"
+      },
+      "headers": {
+        "Ocp-Apim-Subscription-Key": "{env:APIM_SUBSCRIPTION_KEY}"
+      },
+      "models": {
+        "gpt-5-nano": {
+          "body": {
+            "reasoning_effort": "minimal",
+            "max_completion_tokens": 512
+          }
+        }
+      }
+    }
+  }
+}

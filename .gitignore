@@ -1,0 +1,12 @@
+.lab/
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+*.whl
+infra/*.json
+opencode.json
+opencode.jsonc
+.opencode/
+
