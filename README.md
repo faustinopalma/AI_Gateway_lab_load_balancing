@@ -115,9 +115,8 @@ The checked-in results contain both full comparison rounds. The first used twelv
 - Gateway-to-model authentication uses managed identity. Model API keys are disabled.
 - Runtime credentials, local OpenCode configuration, raw private evidence, and resource state are excluded from Git.
 - Publish only reviewed, sanitized results. Never add Azure token caches or `.lab` to version control.
-- Creating a local Git repository does not publish it. No remote is configured automatically.
-- No license is asserted for the original lab content; choose a suitable license before public distribution.
-- The repository is local. Creating it does not create a GitHub repository or publish any data.
+- Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing).
+- No license is currently specified for the original lab content.
 
 ## Cleanup
 
