@@ -1,121 +1,93 @@
 # Cookie-free LLM session affinity
 
-A reproducible laboratory for **Azure API Management** and **standalone Azure AI Gateway**, using **OpenCode 2.2.5** and three identical Azure OpenAI deployments.
+**Both Azure API Management (APIM) and standalone Azure AI Gateway distributed OpenCode conversations across three LLM backends and kept each healthy conversation on the same backend, without cookies or client changes.**
 
-The gateway distributes independent conversations across backends and keeps each conversation on its preferred backend while it is available. Tests measure actual backend placement, prompt-cache reuse, streaming, and recovery.
+All **2,160 requests** in the six routing comparisons completed. APIM's configurable policies also supplied recovery for every controlled fault request. The standalone preview's recovery scope is described below.
 
-Both configurations passed the healthy-session routing comparison: **2,160 completed responses** and **zero affinity-session backend changes**. APIM also met the controlled recovery criterion; the report explains the standalone preview's current recovery boundary.
+## The problem
 
-- [Concepts, configurations, and measured results](docs/REPORT.md)
-- [Test specification](SPECIFICATION.md)
-- [Editable Inkscape diagram](docs/architecture.svg) and [PNG preview](docs/architecture.png)
-- [Sanitized measurement data](results/)
+Coding agents such as OpenCode send instructions, tool definitions, and a growing conversation history with each request. Much of that input remains identical across turns. **Prompt caching** lets the model service reuse computations for an identical input prefix, reducing the work required before answering.
 
-## Requirements
+A gateway can spread requests across several model deployments. If successive turns move between backends, cache reuse may change. The desired behavior combines two controls:
 
-Use PowerShell 7, Azure CLI with the official `aigateway` extension, Bicep, Node.js 22+, and Git. GitHub CLI downloads the checksum-verified OpenCode binary.
+- **Load balancing:** distribute different conversations across the available backends.
+- **Session affinity:** keep the turns of one conversation on its preferred backend while it is available.
 
-Use an authorized lab subscription with sufficient model quota. Providers `Microsoft.ApiManagement`, `Microsoft.CognitiveServices`, `Microsoft.OperationalInsights`, and `Microsoft.Insights` must be registered. Obtain permission before registering subscription-wide providers.
+OpenCode supplies a conversation identifier in its request headers, including `x-opencode-session`. Continuing a conversation preserves that identifier; starting another creates a new one. Both configurations use this existing information, so OpenCode can retain its normal cookie-free behavior.
 
-The infrastructure is one APIM **Basic v2** unit, one standalone AI Gateway **Standard preview**, three Azure OpenAI accounts in Sweden Central, and capped telemetry. Each account deploys **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** and 1,000,000 TPM / 1,000 RPM quota. Inference placement is service-managed.
+## Architecture
 
-Confirm current prices and a spending envelope before provisioning. APIM capacity is billed while it exists; inference and telemetry are billed separately. The lab uses pay-as-you-go capacity.
+![OpenCode connects through either APIM or standalone Azure AI Gateway to three shared Azure OpenAI backends](docs/architecture.png)
 
-## Create and configure
+Each gateway was tested against the same three Azure OpenAI accounts, each exposing an identical **gpt-5-nano** deployment, version **2025-08-07**, using **Global Standard** in Sweden Central. APIM used one **Basic v2** unit; standalone AI Gateway used **Standard preview**. Both authenticated to the models with managed identity, with model API-key authentication disabled.
 
-Keep the Azure CLI profile outside the repository:
+The diagram is available as an [editable Inkscape SVG](docs/architecture.svg). Each gateway has a straight connection to each backend.
 
-```powershell
-$env:AZURE_CONFIG_DIR = '<authorized local Azure CLI profile>'
-npm ci
-npm test
-.\scripts\New-Lab.ps1 -SubscriptionId '<subscription-id>' -CreateAiGateway
-.\scripts\Set-Apim.ps1
-.\scripts\Set-AiGateway.ps1
-.\scripts\Set-Telemetry.ps1
-.\scripts\Set-ModelDiagnostics.ps1
-.\scripts\Wait-ModelDiagnostics.ps1
-.\scripts\Install-OpenCode.ps1
-```
+## Results: distribution and affinity
 
-Resources belong to a newly generated group tagged `purpose=llm-cache-affinity-lab`, `owner=fausto.palma`, and a unique lab identifier. Existing groups are never reused. Manifests, credentials, and raw evidence stay in the Git-ignored `.lab` directory.
+Each gateway was tested with a single-backend reference, ordinary balancing, and session affinity. Every case ran **60 conversations of six turns**, for 360 requests, using prompts of about 5,200 tokens and growing conversation history.
 
-The diagnostic-readiness step waits for independently matched requests from all three model accounts. [Initial diagnostic availability can take up to two hours](https://learn.microsoft.com/azure/ai-services/diagnostic-logging); keep this step before acceptance measurements.
+| Gateway | Routing | Initial conversations on b1 / b2 / b3 | Conversations changing backend | Warm-turn cached input |
+|---|---|---|---:|---:|
+| APIM | Single backend | 60 / 0 / 0 | 0 / 60 | 92.83% |
+| APIM | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 90.85% |
+| APIM | **Session affinity** | **20 / 23 / 17** | **0 / 60** | **88.68%** |
+| AI Gateway | Single backend | 60 / 0 / 0 | 0 / 60 | 92.16% |
+| AI Gateway | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 93.15% |
+| AI Gateway | **Session affinity** | **19 / 25 / 16** | **0 / 60** | **91.22%** |
 
-Both gateways authenticate to models using managed identity. Model API-key authentication is disabled. Normal client-to-gateway credentials remain environment references.
+With affinity, both gateways distributed conversations across all three backends, with **zero backend changes within healthy conversations**. Ordinary balancing moved every conversation between backends. Serving-account identities were independently verified by matching request IDs to model diagnostics.
 
-### Routing configurations
+Warm-turn cached input is the proportion of input tokens reported as cached, excluding the first turn and weighted by tokens. Both affinity configurations stayed within five percentage points of their own single-backend reference.
 
-| Case | APIM | Standalone AI Gateway |
-|---|---|---|
-| `single` | Prefer backend b1. | Alias with backend b1. |
-| `balanced` | Equal-weight backend pool. | Equal-weight, equal-priority alias. |
-| `sticky` | Policy hashes model and session identifier. | Alias enables native session affinity from `x-opencode-session`. |
+### What this means for prompt caching
 
-APIM APIs expose `/{case}/openai/v1/chat/completions`. Backend entities are `b1`, `b2`, and `b3`; endpoint named values are `lab-endpoint-b1` through `lab-endpoint-b3`. API-level templates are in [policies](policies/).
+**Stable conversation placement is demonstrated. Additional cache savings from affinity were not established for this configuration.** Ordinary balancing also produced substantial cache reuse. Controlled requests showed cached tokens on the first request to another account endpoint after the same prompt had been sent to b1.
 
-Standalone routing is in workspace `default`, providers `b1`/`b2`/`b3`, registration `lab-chat`, and aliases `gpt-5-nano-{case}`. Requests use `/default/models/openai/v1/chat/completions`, with the alias in `model`. [Set-AiGateway.ps1](scripts/Set-AiGateway.ps1) sets and verifies `properties.sessionBackendPreference.key` and `properties.selectionOrder` through ARM.
+These Global Standard endpoints use service-managed inference placement. The physical cache location was not observable. Cache retention and routing behavior therefore require validation with the intended production model and deployment type.
 
-OpenCode examples: [APIM](examples/opencode-apim.json) and [AI Gateway](examples/opencode-aigateway.json). Set `providers.lab.settings.baseURL`, the gateway credential reference, and `model`. Keep the Chat Completions provider package shown in the examples.
+## How the configurations work
 
-## Run the comparison
+### APIM: a configurable routing policy
 
-Run these commands in separate PowerShell processes, setting `AZURE_CONFIG_DIR` in each:
+APIM's policy engine combines conversation identification, validation, backend selection, and recovery. The policy validates OpenCode's session headers, hashes the model name and conversation identifier, and maps the result to one of the three backends. The same pair always selects the same preferred backend, with no shared session database.
 
-```powershell
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario single
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario balanced
-.\scripts\Invoke-Measurements.ps1 -Gateway apim -Scenario sticky
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario single
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario balanced
-.\scripts\Invoke-Measurements.ps1 -Gateway aigateway -Scenario sticky
-```
+Missing session headers use random backend selection. Conflicting or malformed identifiers receive HTTP 400. Recoverable errors before streaming begins can trigger another backend attempt, up to three attempts in total. This configurability supplied the controls needed for the tested routing and recovery requirements.
 
-Each case uses 60 six-turn sessions, eleven concurrent session workers, and 36 requests/minute, taking about ten minutes. Distinct early prompt prefixes separate the cases. The APIM single-backend route retains recovery; verify its measured distribution before accepting it as a strict reference.
+Implementation: [APIM policy templates](policies/) and [setup script](scripts/Set-Apim.ps1).
 
-### Client and edge checks
+### Standalone AI Gateway: native affinity on a model alias
 
-```powershell
-node .\scripts\opencode-check.mjs mock
-.\scripts\Invoke-OpenCode.ps1 -Gateway apim
-.\scripts\Invoke-OpenCode.ps1 -Gateway aigateway
-.\scripts\Invoke-OpenCode.ps1 -Gateway apim -Direct
-.\scripts\Invoke-OpenCode.ps1 -Gateway aigateway -Direct
-.\scripts\Invoke-EdgeChecks.ps1
-.\scripts\Invoke-EdgeChecks.ps1 -Gateway aigateway
-.\scripts\Invoke-EdgeChecks.ps1 -CacheScope
-```
+A model alias exposes one model name backed by several registered deployments. The alias uses `x-opencode-session` as its native affinity key, with **session affinity evaluated before priority**. With an unchanged backend set, the same key retains the same preferred backend.
 
-Observer mode forwards the unmodified OpenCode request through a local metadata recorder; direct mode uses ordinary provider settings. Checks validate completed responses, continued and new sessions, cookies, non-streaming requests, and missing-header behavior.
+All three registrations have equal priority and weight. A request without the session header uses ordinary balancing. The alias reads that one header; APIM additionally checks agreement between the four supported session headers.
 
-### Correlate, test recovery, and publish
+Implementation: [AI Gateway setup script](scripts/Set-AiGateway.ps1). The [detailed configuration](docs/REPORT.md#configuration-2-standalone-azure-ai-gateway) includes the expression, alias properties, and portal settings.
 
-Collect actual serving-account evidence from model logs. Allow time for diagnostic ingestion; enrichment exposes incomplete coverage.
+## Recovery and client compatibility
 
-```powershell
-.\scripts\Get-LabLogs.ps1 `
-  -Query 'AzureDiagnostics | where Category in ("RequestResponse", "AzureOpenAIRequestUsage") | summarize by CorrelationId, Resource' `
-  -OutputName 'backend-correlations.json' | Out-Null
-node .\scripts\enrich.mjs
+For each recovery condition, six conversations made two requests while one backend was affected. The table shows completed responses out of twelve:
 
-.\scripts\Invoke-Faults.ps1 -Gateway apim
-.\scripts\Invoke-Faults.ps1 -Gateway aigateway
-```
+| Gateway | Backend returns 429 | Backend returns 503 | Backend endpoint unavailable |
+|---|---:|---:|---:|
+| APIM | **12 / 12** | **12 / 12** | **12 / 12** |
+| AI Gateway | 10 / 12 | 10 / 12 | 8 / 12 |
 
-Run recovery checks after the comparison and its enrichment. Native recovery checks select sessions whose preferred backends were independently verified. A b1-only alias checks that the backend is healthy before injection and actually returns the controlled error afterward. Tests temporarily change one lab endpoint, retain evidence, and restore it in `finally`. An unmet check returns a nonzero exit code; the [report](docs/REPORT.md#pre-response-recovery) documents the native preview's current recovery boundary.
+APIM retried affected requests on healthy backends before streaming began. Native affinity moved subsequent turns to healthy backends after 429 and 503 responses; the initial affected requests returned those errors. The unavailable endpoint affected all four requests assigned to it.
 
-Repeat log collection and enrichment after recovery. Then:
+The tested standalone preview API (**2025-09-01-preview**) excludes alias- and workspace-level fallback policies. Transparent per-request recovery for this route remains outside the verified capability. All conversations returned to their original backends after restoration. See the [recovery findings](docs/REPORT.md#pre-response-recovery) for the exact scope.
 
-```powershell
-.\scripts\Remove-Lab.ps1 -ConfirmCleanup
-node .\scripts\publish-results.mjs
-node .\scripts\validate-results.mjs
-```
+Real **OpenCode 2.2.5** completed initial turns, continuations, and new conversations through both gateways without cookies. Streaming, non-streaming, and missing-header cases were also checked; requests without a session header reached all three backends.
 
-Publication exports allowlisted fields and session ordinals, omitting credentials, resource IDs, hostnames, raw tracing IDs, and error bodies. Validation checks complete responses, independent backend evidence, session distribution, affinity, and cache-reference tolerance.
+## Scope and next steps
 
-## Cleanup and sharing
+The measurements cover one gateway unit, one model version, and a fixed three-backend topology. Multi-unit and multi-region operation, backend additions and removals, OpenCode compaction and subagents, and continuation after partial streamed output require separate validation. Heavily used conversations also need capacity planning because affinity concentrates their traffic on one backend.
 
-Only run cleanup when authorized. [Remove-Lab.ps1](scripts/Remove-Lab.ps1) checks ownership tags and the inventory against the manifest before deleting the dedicated group, then verifies absence. Unexpected resources stop deletion. Provider registrations and platform soft-delete records are retained.
+- **[Reproduce the lab](docs/REPRODUCTION.md):** requirements, setup, test commands, evidence collection, and safe cleanup.
+- **[Detailed report](docs/REPORT.md):** exact configurations, latency measurements, cache evidence, recovery scope, and production considerations.
+- **[Sanitized measurement data](results/):** machine-readable evidence behind the results.
+- **[Test specification](SPECIFICATION.md):** objectives and acceptance criteria.
 
-Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing). Review sanitized outputs before publishing; never commit `.lab` or Azure token caches. No license is specified for the original lab content. Azure service artwork follows the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).
+All **seven owned resources** from the published run were deleted, and the dedicated resource group's absence was verified.
+
+No license is specified for the original lab content. Azure service artwork follows the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).

@@ -161,7 +161,7 @@ The lab lifetime was approximately **83 minutes**. The public Sweden Central API
 
 All **seven inventoried resources** had the expected ownership tags and belonged to the dedicated group. The group was deleted and its absence verified. Cleanup deleted only the owned lab group; subscription-level provider registrations and platform soft-delete records were retained. Manifests and raw evidence remain excluded from Git.
 
-See the [README](../README.md) for reproduction and cleanup, the [specification](../SPECIFICATION.md) for acceptance criteria, and [sanitized results](../results/) for machine-readable evidence.
+See the [README](../README.md) for the overview, the [reproduction guide](REPRODUCTION.md) for setup and cleanup, the [specification](../SPECIFICATION.md) for acceptance criteria, and [sanitized results](../results/) for machine-readable evidence.
 
 ## Primary references
 
