@@ -35,7 +35,7 @@
     "servingBackends": [
       "b2",
       "b2",
-      "b2"
+      "b1"
     ],
     "sessionHeaders": [
       "x-opencode-session",
@@ -61,9 +61,9 @@
     "servingBackendVerified": true,
     "continuedSessionBackendStable": true,
     "servingBackends": [
-      "b2",
-      "b2",
-      "b1"
+      "b1",
+      "b1",
+      "b3"
     ],
     "sessionHeaders": [
       "x-opencode-session",

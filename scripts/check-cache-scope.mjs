@@ -14,13 +14,14 @@ for (let index = 0; sessions.size < 3; index++) {
 const records = [];
 for (let trial = 1; trial <= 3; trial++) {
   const body = fixture(`cache-scope-${randomUUID()}`, 'identical-body', 0, state.deployment);
-  for (const backend of ['b1', 'b2', 'b3', 'b1']) {
+  const sequence = ['b1', 'b1', 'b2', 'b2', 'b3', 'b3', 'b1'];
+  for (const [step, backend] of sequence.entries()) {
     const result = await callModel({
       url: `${state.apim.endpoint}/sticky/openai/v1/chat/completions`,
       key: process.env.LAB_APIM_KEY, keyHeader: 'Ocp-Apim-Subscription-Key',
       body, session: sessions.get(backend),
     });
-    records.push({ trial, intendedBackend: backend, ...result });
+    records.push({ trial, step: step + 1, intendedBackend: backend, ...result });
     await writeFile(resolve('.lab', 'cache-scope.json'), JSON.stringify(records, null, 2));
     if (!result.complete || result.backend !== backend || Number(result.attempts) !== 1) {
       throw new Error('The controlled cache probe did not reach its intended backend on its first attempt.');

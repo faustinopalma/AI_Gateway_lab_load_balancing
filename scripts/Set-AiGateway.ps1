@@ -6,7 +6,8 @@ $scope = @('--subscription', $state.subscription, '--resource-group', $state.res
     '--gateway-name', $state.aiGateway.name)
 $modelIds = @()
 foreach ($backend in $state.backends) {
-    $role = Invoke-AzJson @('role', 'assignment', 'create', '--subscription', $state.subscription,
+    $backendSubscription = ($backend.id -split '/')[2]
+    $role = Invoke-AzJson @('role', 'assignment', 'create', '--subscription', $backendSubscription,
         '--assignee-object-id', $state.aiGateway.identity, '--assignee-principal-type', 'ServicePrincipal',
         '--role', 'Cognitive Services OpenAI User', '--scope', $backend.id)
     $foundry = Write-PrivateJson "foundry-$($backend.label).json" @{

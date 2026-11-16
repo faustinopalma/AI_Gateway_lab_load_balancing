@@ -1,8 +1,8 @@
 # Cookie-free LLM session affinity
 
-**Both gateways achieved the core routing objective:** independent OpenCode conversations were distributed across three backends, with zero backend changes within healthy conversations. APIM implements this through its configurable policy engine; standalone AI Gateway provides native header-based affinity.
+**Both gateways achieved conversation affinity and preserved prompt-cache reuse across three subscription-isolated backends.** Warm-turn cached input reached **91.87% through APIM** and **90.25% through standalone AI Gateway**, versus **53.68%** and **54.48%** with ordinary balancing. Both affinity cases completed all 360 requests with zero backend changes within conversations.
 
-APIM also completed every controlled pre-response recovery request. The standalone preview has a narrower verified recovery scope, detailed below. Additional cache savings from affinity were not demonstrated with this model configuration.
+APIM implements this through its configurable policy engine; standalone AI Gateway provides native header-based affinity. Recovery measurements and the current preview scope are detailed below.
 
 ## The routing problem
 
@@ -16,9 +16,9 @@ Stable routing improves the opportunity for cache reuse. Actual cache hits also 
 
 ![OpenCode, two gateway configurations, and three shared model backends](architecture.png)
 
-The two gateway configurations use the same three Azure OpenAI accounts. Every account hosts **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** in Sweden Central. Each backend is a deployment endpoint; Azure selects the physical inference workers behind it.
+The two gateway configurations use the same three Foundry resources (`Microsoft.CognitiveServices/accounts`, kind `AIServices`), each in a different Azure subscription in one tenant. Every resource hosts **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** in Sweden Central. Each backend is a deployment endpoint; Azure selects the physical inference workers behind it.
 
-APIM uses one **Basic v2** unit. Standalone Azure AI Gateway uses **Standard preview**. Both authenticate to the model accounts with managed identity and scoped inference permissions; model API-key authentication is disabled. Clients use ordinary gateway credentials.
+APIM uses one **Basic v2** unit. Standalone Azure AI Gateway uses **Standard preview**. Both gateways and the telemetry workspace belong to the first subscription. Each gateway's managed identity has scoped inference permissions on all three model accounts across subscriptions; model API-key authentication is disabled. Clients use ordinary gateway credentials.
 
 The [editable SVG](architecture.svg) was rendered with Inkscape. Each gateway has a straight connection to each backend; the icons retain Microsoft's original service artwork.
 
@@ -92,39 +92,51 @@ Serving-account identity is independently checked by matching returned request I
 
 ## Measured results
 
-All **2,160 comparative requests completed**, with token usage and independent serving-account evidence for every request. First-turn cached tokens were zero in all six cases.
+Of **2,160 comparative requests**, **2,159 completed**, with token usage and independent serving-account evidence for every completed response. One ordinary-balancing AI Gateway request returned HTTP **408**; its cause was not established. It remains in the published measurements, and the zero-error comparison criterion was unmet. First-turn cached tokens were zero in all six cases.
 
 Counts below are ordered **b1 / b2 / b3**. Initial sessions describe first-turn placement; the change count describes conversations that used another backend on a later turn.
 
 | Gateway and case | Initial sessions | Requests | Sessions changing backend | Cached input: all / warm turns |
 |---|---|---|---:|---|
-| APIM: single | 60 / 0 / 0 | 360 / 0 / 0 | 0 | 77.51% / 92.83% |
-| APIM: balanced | 22 / 22 / 16 | 120 / 120 / 120 | 60 | 75.85% / 90.85% |
-| APIM: affinity | 20 / 23 / 17 | 120 / 138 / 102 | **0** | 74.04% / 88.68% |
-| AI Gateway: single | 60 / 0 / 0 | 360 / 0 / 0 | 0 | 76.95% / 92.16% |
-| AI Gateway: balanced | 22 / 22 / 16 | 120 / 120 / 120 | 60 | 77.77% / 93.15% |
-| AI Gateway: affinity | 19 / 25 / 16 | 114 / 150 / 96 | **0** | 76.16% / 91.22% |
+| APIM: single | 60 / 0 / 0 | 360 / 0 / 0 | 0 | 76.98% / 92.20% |
+| APIM: balanced | 22 / 22 / 16 | 120 / 120 / 120 | 60 | 44.82% / 53.68% |
+| APIM: affinity | 20 / 23 / 17 | 120 / 138 / 102 | **0** | 76.70% / 91.87% |
+| AI Gateway: single | 60 / 0 / 0 | 360 / 0 / 0 | 0 | 75.63% / 90.59% |
+| AI Gateway: balanced | 22 / 22 / 16 | 119 / 120 / 120 | 60 | 45.46% / 54.48% |
+| AI Gateway: affinity | 19 / 25 / 16 | 114 / 150 / 96 | **0** | 75.35% / 90.25% |
 
-Both affinity cases meet the 20-45% session-share criterion and the five-percentage-point warm-cache tolerance against their own single-backend reference. APIM served 100% of affinity requests on the expected first attempt, with no retries during the comparison. Native attempt counts were not exposed.
+Request counts and cache ratios describe completed responses. Both affinity cases meet the 20-45% session-share criterion and the five-percentage-point warm-cache tolerance against their own single-backend reference; each differs by approximately **0.33 percentage points**. APIM served 100% of affinity requests on the expected first attempt, with no retries during the comparison. Native attempt counts were not exposed.
 
 ### Latency
 
-Times are milliseconds, rounded to the nearest millisecond.
+Times describe completed responses in milliseconds, rounded to the nearest millisecond.
 
 | Gateway and case | First token p50 / p95 | Total p50 / p95 |
 |---|---:|---:|
-| APIM: single | 517 / 693 | 598 / 769 |
-| APIM: balanced | 477 / 612 | 558 / 700 |
-| APIM: affinity | 483 / 608 | 566 / 705 |
-| AI Gateway: single | 340 / 508 | 420 / 601 |
-| AI Gateway: balanced | 341 / 474 | 421 / 557 |
-| AI Gateway: affinity | 331 / 459 | 413 / 551 |
+| APIM: single | 600 / 1043 | 714 / 1214 |
+| APIM: balanced | 624 / 1151 | 744 / 1298 |
+| APIM: affinity | 567 / 1032 | 699 / 1126 |
+| AI Gateway: single | 419 / 874 | 538 / 970 |
+| AI Gateway: balanced | 457 / 1085 | 580 / 1271 |
+| AI Gateway: affinity | 426 / 917 | 546 / 1076 |
 
 ### What the cache measurements establish
 
-**Measured:** standard balancing also produced substantial cache reuse. In three controlled trials, an identical request first sent to b1 had zero cached tokens; its first requests to b2 and b3 each reported **4,992 cached tokens**. Returning to b1 reused 4,992 tokens in two trials and reported zero in one. All serving accounts were independently verified.
+**Documented boundary:** [Microsoft's prompt-caching guide](https://learn.microsoft.com/azure/foundry/openai/how-to/prompt-caching#in-memory-prompt-cache-retention) states that prompt caches are not shared between Azure subscriptions. The three Foundry resources therefore occupy separate subscriptions, with region, model, version, and deployment settings held constant.
 
-**Interpretation:** these same-subscription Global Standard endpoints provided cache reuse across account endpoints. Physical cache ownership was not observable. Affinity's routing benefit is demonstrated; an additional cache-saving benefit requires validation with the intended production model and deployment type.
+**Controlled measurement:** each trial used a fresh approximately 5,225-token prompt and sent the identical body in the order **b1, b1, b2, b2, b3, b3, b1**. The table shows cached input tokens. Serving accounts were independently verified for all 21 completed responses.
+
+| Trial | b1 first | b1 repeat | b2 first | b2 repeat | b3 first | b3 repeat | Return to b1 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 4,992 | 0 | 4,992 | 0 | 4,992 | 0 |
+| 2 | 0 | 4,992 | 0 | 0 | 0 | 4,992 | 4,992 |
+| 3 | 0 | 4,992 | 0 | 0 | 0 | 4,992 | 4,992 |
+
+First use on each subscription was cold in **9 / 9** observations. Immediate repeats reused cache in **7 / 9** cases, and returning to b1 reused it in **2 / 3**. Local misses are consistent with best-effort service routing and cache retention; physical cache ownership remains unobservable.
+
+**Comparative result:** affinity increased warm-turn cached input by **38.19 percentage points through APIM** and **35.77 through AI Gateway**, preserving almost all the reuse achieved by each single-backend reference. Ordinary balancing can warm several backends over repeated visits, which explains its partial reuse. The short responses and shared concurrent model workload limit conclusions about latency gains; cached-token reductions were measured directly.
+
+An earlier same-subscription control showed prompt-cache reuse across account endpoints. The current experiment uses the documented subscription isolation boundary.
 
 ### OpenCode and edge cases
 
@@ -145,7 +157,7 @@ APIM moved the two affected sessions to a healthy backend, using a second attemp
 
 With native affinity, the first two affected requests returned 429 or 503; subsequent turns used healthy backends. The unavailable-host condition returned HTTP 500 for the four affected requests. All six sessions returned to their original backends after restoration in every condition. Completed recovery responses have full model-log coverage.
 
-**Current preview boundary:** the tested alias and workspace policy contracts exclude `fallback`; transparent per-request recovery for this route remains outside the verified capability. Registered-model fallback settings did not extend recovery through the alias. These bounds apply to API **2025-09-01-preview**. OpenCode's own outage retries were not measured.
+**Current preview boundary:** the tested alias and workspace policy contracts exclude `fallback`; transparent per-request recovery for this route remains outside the verified capability. These bounds apply to API **2025-09-01-preview**. OpenCode's own outage retries were not measured.
 
 ## Scope and production considerations
 
@@ -157,9 +169,9 @@ Cookie affinity requires client cookie handling. Semantic response caching reuse
 
 ## Cost and cleanup
 
-The lab lifetime was approximately **83 minutes**. The public Sweden Central APIM Basic v2 capacity quote was **US$0.27 per unit-hour**, giving a capacity-planning upper bound of about **US$0.38** for that window. Inference, AI Gateway, and telemetry charges are separate; an invoiced total was not collected.
+The lab lifetime was approximately **68 minutes**. The public Sweden Central APIM Basic v2 capacity quote was **US$0.27 per unit-hour**, giving a capacity-planning upper bound of about **US$0.31** for that window. Inference, AI Gateway, and telemetry charges are separate; an invoiced total was not collected.
 
-All **seven inventoried resources** had the expected ownership tags and belonged to the dedicated group. The group was deleted and its absence verified. Cleanup deleted only the owned lab group; subscription-level provider registrations and platform soft-delete records were retained. Manifests and raw evidence remain excluded from Git.
+All **eight inventoried resources** had the expected ownership tags: three Foundry accounts, two gateways, a workspace, Application Insights, and its Smart Detection action group. The three dedicated resource groups were deleted and their absence verified in every subscription. Cleanup deleted only owned lab groups; subscription-level provider registrations and platform soft-delete records were retained. Manifests and raw evidence remain excluded from Git.
 
 See the [README](../README.md) for the overview, the [reproduction guide](REPRODUCTION.md) for setup and cleanup, the [specification](../SPECIFICATION.md) for acceptance criteria, and [sanitized results](../results/) for machine-readable evidence.
 

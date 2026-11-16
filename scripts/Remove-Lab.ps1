@@ -3,20 +3,21 @@ param([switch]$ConfirmCleanup)
 if (-not $ConfirmCleanup) { throw 'Pass -ConfirmCleanup only when authorized to delete the inventoried lab.' }
 $state = Read-LabState
 $null = Assert-LabScope $state
-$resources = @(Invoke-AzJson @('resource', 'list', '--subscription', $state.subscription, '--resource-group', $state.resourceGroup))
-foreach ($resource in $resources) {
-    $known = @($state.expectedRoots | Where-Object {
-        $resource.id.Equals($_, [StringComparison]::OrdinalIgnoreCase) -or
-        $resource.id.StartsWith("$_/", [StringComparison]::OrdinalIgnoreCase)
-    })
-    if ($known.Count -eq 0) { throw "Unrecognized resource in lab group; cleanup stopped: $($resource.type)." }
-}
+$groups = @(Get-LabGroups $state)
+$resources = @(
+    foreach ($scope in $groups) {
+        Invoke-AzJson @('resource', 'list', '--subscription', $scope.subscription, '--resource-group', $scope.resourceGroup)
+    }
+)
+Assert-LabResources -State $state -Resources $resources
 $null = Write-PrivateJson 'inventory-before-cleanup.json' $resources
-& az group delete --subscription $state.subscription --name $state.resourceGroup --yes --only-show-errors
-if ($LASTEXITCODE -ne 0) { throw 'Resource group deletion failed.' }
-$exists = & az group exists --subscription $state.subscription --name $state.resourceGroup --output tsv --only-show-errors
-if ($LASTEXITCODE -ne 0 -or $exists.Trim() -ne 'false') { throw 'Cleanup could not be verified.' }
+foreach ($scope in $groups) {
+    & az group delete --subscription $scope.subscription --name $scope.resourceGroup --yes --only-show-errors
+    if ($LASTEXITCODE -ne 0) { throw 'Resource group deletion failed.' }
+    $exists = & az group exists --subscription $scope.subscription --name $scope.resourceGroup --output tsv --only-show-errors
+    if ($LASTEXITCODE -ne 0 -or $exists.Trim() -ne 'false') { throw 'Cleanup could not be verified.' }
+}
 $state.cleanedUtc = [DateTime]::UtcNow.ToString('o')
 $state.cleanupVerified = $true
 Save-LabState $state
-Write-Output 'Verified: the dedicated lab resource group no longer exists.'
+Write-Output "Verified: all $($groups.Count) dedicated lab resource groups no longer exist."

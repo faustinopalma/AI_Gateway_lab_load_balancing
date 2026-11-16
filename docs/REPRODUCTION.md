@@ -8,9 +8,9 @@ Run all commands from the repository root.
 
 Use PowerShell 7, Azure CLI with the official `aigateway` extension, Bicep, Node.js 22+, and Git. GitHub CLI downloads the checksum-verified OpenCode binary.
 
-Use an authorized lab subscription with sufficient model quota. Providers `Microsoft.ApiManagement`, `Microsoft.CognitiveServices`, `Microsoft.OperationalInsights`, and `Microsoft.Insights` must be registered. Obtain permission before registering subscription-wide providers.
+Use three authorized lab subscriptions in the same tenant, with sufficient model quota and permissions to create resources and scoped role assignments. Register `Microsoft.CognitiveServices` and `Microsoft.Insights` in each subscription, and `Microsoft.ApiManagement` and `Microsoft.OperationalInsights` in the gateway subscription. Obtain permission before registering subscription-wide providers.
 
-The infrastructure is one APIM **Basic v2** unit, one standalone AI Gateway **Standard preview**, three Azure OpenAI accounts in Sweden Central, and capped telemetry. Each account deploys **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** and 1,000,000 TPM / 1,000 RPM quota. Inference placement is service-managed.
+The infrastructure is one APIM **Basic v2** unit, one standalone AI Gateway **Standard preview**, three Foundry resources (`AIServices`) in Sweden Central, and capped telemetry. Telemetry includes a workspace, Application Insights, and its ownership-tagged Smart Detection action group. Each Foundry resource belongs to a different subscription and deploys **gpt-5-nano**, version **2025-08-07**, deployment name **gpt-5-nano**, using **Global Standard** and 1,000,000 TPM / 1,000 RPM quota. Both gateways and telemetry belong to the first subscription. Inference placement is service-managed.
 
 Confirm current prices and a spending envelope before provisioning. APIM capacity is billed while it exists; inference and telemetry are billed separately. The lab uses pay-as-you-go capacity.
 
@@ -20,9 +20,10 @@ Keep the Azure CLI profile outside the repository:
 
 ```powershell
 $env:AZURE_CONFIG_DIR = '<authorized local Azure CLI profile>'
+$subscriptions = @('<gateway-and-b1-subscription-id>', '<b2-subscription-id>', '<b3-subscription-id>')
 npm ci
 npm test
-.\scripts\New-Lab.ps1 -SubscriptionId '<subscription-id>' -CreateAiGateway
+.\scripts\New-Lab.ps1 -SubscriptionId $subscriptions[0] -BackendSubscriptionIds $subscriptions -CreateAiGateway
 .\scripts\Set-Apim.ps1
 .\scripts\Set-AiGateway.ps1
 .\scripts\Set-Telemetry.ps1
@@ -31,7 +32,9 @@ npm test
 .\scripts\Install-OpenCode.ps1
 ```
 
-Resources belong to a newly generated group tagged `purpose=llm-cache-affinity-lab`, `owner=fausto.palma`, and a unique lab identifier. Existing groups are never reused. Manifests, credentials, and raw evidence stay in the Git-ignored `.lab` directory.
+Resources belong to a newly generated group in each subscription, tagged `purpose=llm-cache-affinity-lab`, `owner=fausto.palma`, and a unique lab identifier. Existing groups are never reused. Manifests, credentials, and raw evidence stay in the Git-ignored `.lab` directory. When retaining evidence from another campaign, archive its private records before starting so enrichment uses only the current run.
+
+Azure CLI locates extensions and Bicep relative to its configuration directory by default. If reusing official installations with a separate authentication profile, set `AZURE_EXTENSION_DIR` to the installed extension directory; for Bicep, add its executable directory to `PATH` and set `AZURE_BICEP_USE_BINARY_FROM_PATH=true`. Keep authentication in the selected `AZURE_CONFIG_DIR`.
 
 The diagnostic-readiness step waits for independently matched requests from all three model accounts. [Initial diagnostic availability can take up to two hours](https://learn.microsoft.com/azure/ai-services/diagnostic-logging); keep this step before acceptance measurements.
 
@@ -105,10 +108,12 @@ node .\scripts\publish-results.mjs
 node .\scripts\validate-results.mjs
 ```
 
-Publication exports allowlisted fields and session ordinals, omitting credentials, resource IDs, hostnames, raw tracing IDs, and error bodies. Validation checks complete responses, independent backend evidence, session distribution, affinity, and cache-reference tolerance.
+Publication exports allowlisted fields and session ordinals, omitting credentials, resource IDs, hostnames, raw tracing IDs, and error bodies. Validation checks complete responses, independent backend evidence for completed responses, session distribution, affinity, cache-reference tolerance, and the three-subscription cache-isolation controls.
+
+The published campaign records one HTTP 408 in ordinary AI Gateway balancing. Its validation output therefore reports `passed: false` and exits with code 1 for the unmet zero-error comparison criterion, while retaining the successful affinity and cache-isolation measurements. Preserve measured errors when reproducing the campaign.
 
 ## Cleanup and sharing
 
-Only run cleanup when authorized. [Remove-Lab.ps1](../scripts/Remove-Lab.ps1) checks ownership tags and the inventory against the manifest before deleting the dedicated group, then verifies absence. Unexpected resources stop deletion. Provider registrations and platform soft-delete records are retained.
+Only run cleanup when authorized. [Remove-Lab.ps1](../scripts/Remove-Lab.ps1) validates ownership tags and inventory across all three groups before deleting any group, then verifies each group's absence. Unexpected resources stop deletion. Provider registrations and platform soft-delete records are retained.
 
 Public repository: [faustinopalma/AI_Gateway_lab_load_balancing](https://github.com/faustinopalma/AI_Gateway_lab_load_balancing). Review sanitized outputs before publishing; never commit `.lab` or Azure token caches. No license is specified for the original lab content. Azure service artwork follows the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).

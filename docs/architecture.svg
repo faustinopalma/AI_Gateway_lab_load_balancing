@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1120" height="660" viewBox="0 0 1120 660">
-  <title>Two gateway configurations share three Azure OpenAI model backends</title>
-  <desc>OpenCode and a repeatable test driver connect to Azure API Management or standalone Azure AI Gateway. Each gateway has a straight connector to each of the same three Azure OpenAI deployments. Service icons retain the original Microsoft Azure artwork.</desc>
+  <title>Two gateways route to three Foundry backends in separate subscriptions</title>
+  <desc>OpenCode and a repeatable test driver connect to Azure API Management or standalone Azure AI Gateway in subscription 1. Each gateway has a straight connector to each of three Foundry resources, one per subscription. All resources deploy the same Azure OpenAI model. Service icons retain the original Microsoft Azure artwork.</desc>
   <defs>
     <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#52657d"/></marker>
     <marker id="apim-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#397eb5"/></marker>
@@ -26,9 +26,17 @@
         <path d="M9,11.59c1.43,0,2.59-1.16,2.59-2.59s-1.16-2.59-2.59-2.59-2.59,1.16-2.59,2.59,1.16,2.59,2.59,2.59Z" fill="url(#aigateway-center)"/>
       </g>
     </symbol>
-    <symbol id="azure-openai-icon" viewBox="0 0 18 18">
-      <defs><radialGradient id="openai-blue" cx="-67.981" cy="793.199" r=".45" gradientTransform="translate(-17939.03 20368.029) rotate(45) scale(25.091 -34.149)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#83b9f9"/><stop offset="1" stop-color="#0078d4"/></radialGradient></defs>
-      <path d="m0,2.7v12.6c0,1.491,1.209,2.7,2.7,2.7h12.6c1.491,0,2.7-1.209,2.7-2.7V2.7c0-1.491-1.209-2.7-2.7-2.7H2.7C1.209,0,0,1.209,0,2.7ZM10.8,0v3.6c0,3.976,3.224,7.2,7.2,7.2h-3.6c-3.976,0-7.199,3.222-7.2,7.198v-3.598c0-3.976-3.224-7.2-7.2-7.2h3.6c3.976,0,7.2-3.224,7.2-7.2Z" fill="url(#openai-blue)" stroke-width="0"/>
+    <symbol id="azure-foundry-icon" viewBox="0 0 18 18">
+      <defs>
+        <linearGradient id="foundry-1" x1="10.91" y1="13.66" x2="13.62" y2="13.66" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#302ec9"/><stop offset=".12" stop-color="#151698"/><stop offset=".25" stop-color="#0a0b7e"/><stop offset=".43" stop-color="#090c7f"/><stop offset=".51" stop-color="#141698"/><stop offset=".61" stop-color="#282ac4"/><stop offset=".77" stop-color="#8e8ff4"/><stop offset=".85" stop-color="#a7a6f7"/><stop offset=".91" stop-color="#cacafb"/><stop offset="1" stop-color="#fff"/></linearGradient>
+        <linearGradient id="foundry-2" x1="12.26" y1="8.32" x2="12.26" y2="18.23" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset=".02" stop-color="#201ba6"/><stop offset=".64" stop-color="#2d29c7"/><stop offset="1" stop-color="#201ba6"/></linearGradient>
+        <linearGradient id="foundry-3" x1="14.19" y1="8.27" x2="14.19" y2="14.47" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3530c3"/><stop offset=".5" stop-color="#6d71d1"/><stop offset=".97" stop-color="#c0bff5"/><stop offset="1" stop-color="#e3e4ff"/></linearGradient>
+        <linearGradient id="foundry-4" x1="6.51" y1="3" x2="6.51" y2="19.15" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#302ec9"/><stop offset=".45" stop-color="#302ec9"/><stop offset=".95" stop-color="#cacafb"/><stop offset="1" stop-color="#7f7eaf"/></linearGradient>
+      </defs>
+      <path d="M11.96,11.68s.07-.1.07-.24v-3.87c0-.85.66-1.76,1.59-2.03-.06-.19-.64-2.11-.81-2.65-.17-.56-.67-1.9-1.29-1.9,0,0,0,0-.01,0h0s-.09.05-.13.13c-.32.58-.46,3.02-.46,4.84v2.26c.27.97.91,3.22.96,3.35,0,0,.05.1.09.1h0Z" fill="url(#foundry-1)"/>
+      <path d="M11.96,11.68s.07-.1.07-.24v-3.87c0-.85.66-1.76,1.59-2.03-.06-.19-.64-2.11-.81-2.65-.17-.56-.67-1.9-1.29-1.9,0,0,0,0-.01,0h0s-.09.05-.13.13c-.32.58-.46,3.02-.46,4.84v2.26c.27.97.91,3.22.96,3.35,0,0,.05.1.09.1h0Z" fill="url(#foundry-2)"/>
+      <path d="M16.01,5.46h-1.81c-1.21,0-2.17,1.09-2.17,2.11v3.87c0,.14-.04.24-.07.24s-.09-.1-.09-.1c0,0,.07.21.17.21h1.98c.62,0,2.48-.61,2.48-2.52v-3.25c0-.41-.24-.55-.49-.55Z" fill="url(#foundry-3)"/>
+      <path d="M2.34,17h5.38c2.35,0,3.2-2.03,3.2-3.81v-7.23c0-2.08.19-4.97.61-4.97h-3.23c-.77,0-1.43.82-2.18,2.48-.75,1.66-4.36,11.87-4.52,12.36-.26.79-.02,1.16.74,1.16Z" fill="url(#foundry-4)"/>
     </symbol>
     <style>
       text { font-family: Arial, sans-serif; fill: #18304a; }
@@ -44,11 +52,11 @@
   </defs>
   <rect width="1120" height="660" fill="#f6f9fc"/>
   <text class="title" x="42" y="52">One workload, two gateway configurations</text>
-  <text class="body" x="42" y="83">The same OpenCode sessions and model backends are used in separate test runs.</text>
+  <text class="body" x="42" y="83">Each Foundry backend belongs to a separate subscription, the documented cache-isolation boundary.</text>
   <rect x="34" y="112" width="1052" height="452" rx="18" fill="#ffffff" stroke="#d4dee8"/>
   <text class="small" x="62" y="146">CLIENTS</text>
   <text class="small" x="374" y="146">GATEWAYS - TESTED SEPARATELY</text>
-  <text class="small" x="794" y="146">SHARED MODEL BACKENDS</text>
+  <text class="small" x="794" y="146">THREE SUBSCRIPTIONS</text>
   <g id="clients" inkscape:label="OpenCode and test driver">
     <rect class="box" x="62" y="245" width="232" height="170" rx="12" fill="#eaf0f8" stroke="#91a8c1"/>
     <text class="heading" x="86" y="281">OpenCode CLI</text>
@@ -61,36 +69,36 @@
     <rect class="box" x="372" y="190" width="316" height="114" rx="12" fill="#edf5ff" stroke="#7ca9d4"/>
     <use id="apim-service-icon" href="#azure-apim-icon" x="390" y="203" width="50" height="50"/>
     <text class="heading" x="452" y="222">Azure API Management</text>
-    <text class="small" x="452" y="245">Basic v2</text>
+    <text class="small" x="452" y="245">Basic v2 | Subscription 1</text>
     <text class="body" x="390" y="280">Policy-based session routing</text>
   </g>
   <g id="aigateway" inkscape:label="Standalone Azure AI Gateway">
     <rect class="box" x="372" y="362" width="316" height="114" rx="12" fill="#f3f0ff" stroke="#a49ad1"/>
     <use id="aigateway-service-icon" href="#azure-aigateway-icon" x="390" y="377" width="50" height="50"/>
     <text class="heading" x="452" y="396">Azure AI Gateway</text>
-    <text class="small" x="452" y="419">Standalone preview</text>
+    <text class="small" x="452" y="419">Standard preview | Sub 1</text>
     <text class="body" x="390" y="452">Native session affinity</text>
   </g>
-  <g id="backends" inkscape:label="The same three Azure OpenAI accounts">
+  <g id="backends" inkscape:label="Three Foundry resources in separate subscriptions">
     <rect class="box" x="792" y="176" width="264" height="344" rx="14" fill="#f7fafc" stroke="#b9c9d8"/>
-    <text class="body" x="810" y="203">Three Azure OpenAI accounts</text>
+    <text class="body" x="810" y="203">Three Foundry resources</text>
     <g id="backend-1">
       <rect x="810" y="220" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
-      <use id="backend-1-icon" href="#azure-openai-icon" x="826" y="238" width="44" height="44"/>
-      <text class="heading" x="886" y="251">Backend 1</text>
-      <text class="small" x="886" y="274">gpt-5-nano</text>
+      <use id="backend-1-icon" href="#azure-foundry-icon" x="826" y="238" width="44" height="44"/>
+      <text class="heading" x="886" y="251">Foundry 1</text>
+      <text class="small" x="886" y="274">Sub 1 | gpt-5-nano</text>
     </g>
     <g id="backend-2">
       <rect x="810" y="314" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
-      <use id="backend-2-icon" href="#azure-openai-icon" x="826" y="332" width="44" height="44"/>
-      <text class="heading" x="886" y="345">Backend 2</text>
-      <text class="small" x="886" y="368">gpt-5-nano</text>
+      <use id="backend-2-icon" href="#azure-foundry-icon" x="826" y="332" width="44" height="44"/>
+      <text class="heading" x="886" y="345">Foundry 2</text>
+      <text class="small" x="886" y="368">Sub 2 | gpt-5-nano</text>
     </g>
     <g id="backend-3">
       <rect x="810" y="408" width="228" height="80" rx="9" fill="#ffffff" stroke="#d4dee8"/>
-      <use id="backend-3-icon" href="#azure-openai-icon" x="826" y="426" width="44" height="44"/>
-      <text class="heading" x="886" y="439">Backend 3</text>
-      <text class="small" x="886" y="462">gpt-5-nano</text>
+      <use id="backend-3-icon" href="#azure-foundry-icon" x="826" y="426" width="44" height="44"/>
+      <text class="heading" x="886" y="439">Foundry 3</text>
+      <text class="small" x="886" y="462">Sub 3 | gpt-5-nano</text>
     </g>
     <text class="small" x="810" y="509">Same model and deployment name</text>
   </g>

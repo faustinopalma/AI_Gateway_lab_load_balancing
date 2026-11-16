@@ -12,6 +12,7 @@ $groupId = $group.id
 $prefix = $state.apim.name -replace '-apim$',''
 $state.expectedRoots += "$groupId/providers/Microsoft.OperationalInsights/workspaces/$prefix-logs"
 $state.expectedRoots += "$groupId/providers/Microsoft.Insights/components/$prefix-insights"
+$state.expectedRoots += "$groupId/providers/Microsoft.Insights/actionGroups/Application Insights Smart Detection"
 $state.expectedRoots = @($state.expectedRoots | Select-Object -Unique)
 Save-LabState $state
 $tags = Write-PrivateJson 'telemetry-tags.json' $group.tags

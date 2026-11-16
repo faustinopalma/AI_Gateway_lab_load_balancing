@@ -1,8 +1,8 @@
 # Cookie-free LLM session affinity
 
-**Both Azure API Management (APIM) and standalone Azure AI Gateway distributed OpenCode conversations across three LLM backends and kept each healthy conversation on the same backend, without cookies or client changes.**
+**Both Azure API Management (APIM) and standalone Azure AI Gateway preserved prompt-cache reuse while distributing OpenCode conversations across three Foundry backends in separate subscriptions, without cookies or client changes.**
 
-All **2,160 requests** in the six routing comparisons completed. APIM's configurable policies also supplied recovery for every controlled fault request. The standalone preview's recovery scope is described below.
+With affinity, warm-turn cached input was **91.87% through APIM** and **90.25% through AI Gateway**, within **0.34 percentage points** of their single-backend references. Ordinary balancing achieved about **54%**. All **720 affinity requests** completed without a conversation changing backend.
 
 ## The problem
 
@@ -17,9 +17,9 @@ OpenCode supplies a conversation identifier in its request headers, including `x
 
 ## Architecture
 
-![OpenCode connects through either APIM or standalone Azure AI Gateway to three shared Azure OpenAI backends](docs/architecture.png)
+![OpenCode connects through either gateway to three Foundry resources, one per subscription](docs/architecture.png)
 
-Each gateway was tested against the same three Azure OpenAI accounts, each exposing an identical **gpt-5-nano** deployment, version **2025-08-07**, using **Global Standard** in Sweden Central. APIM used one **Basic v2** unit; standalone AI Gateway used **Standard preview**. Both authenticated to the models with managed identity, with model API-key authentication disabled.
+The gateways use the same three **Foundry resources, one per Azure subscription**, each exposing an identical **gpt-5-nano** deployment, version **2025-08-07**, using **Global Standard** in Sweden Central. Both gateways and telemetry belong to the first subscription. APIM uses one **Basic v2** unit; standalone AI Gateway uses **Standard preview**. Both authenticate to the models with managed identity, with model API-key authentication disabled.
 
 The diagram is available as an [editable Inkscape SVG](docs/architecture.svg). Each gateway has a straight connection to each backend.
 
@@ -29,22 +29,26 @@ Each gateway was tested with a single-backend reference, ordinary balancing, and
 
 | Gateway | Routing | Initial conversations on b1 / b2 / b3 | Conversations changing backend | Warm-turn cached input |
 |---|---|---|---:|---:|
-| APIM | Single backend | 60 / 0 / 0 | 0 / 60 | 92.83% |
-| APIM | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 90.85% |
-| APIM | **Session affinity** | **20 / 23 / 17** | **0 / 60** | **88.68%** |
-| AI Gateway | Single backend | 60 / 0 / 0 | 0 / 60 | 92.16% |
-| AI Gateway | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 93.15% |
-| AI Gateway | **Session affinity** | **19 / 25 / 16** | **0 / 60** | **91.22%** |
+| APIM | Single backend | 60 / 0 / 0 | 0 / 60 | 92.20% |
+| APIM | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 53.68% |
+| APIM | **Session affinity** | **20 / 23 / 17** | **0 / 60** | **91.87%** |
+| AI Gateway | Single backend | 60 / 0 / 0 | 0 / 60 | 90.59% |
+| AI Gateway | Ordinary balancing | 22 / 22 / 16 | 60 / 60 | 54.48% |
+| AI Gateway | **Session affinity** | **19 / 25 / 16** | **0 / 60** | **90.25%** |
 
 With affinity, both gateways distributed conversations across all three backends, with **zero backend changes within healthy conversations**. Ordinary balancing moved every conversation between backends. Serving-account identities were independently verified by matching request IDs to model diagnostics.
 
 Warm-turn cached input is the proportion of input tokens reported as cached, excluding the first turn and weighted by tokens. Both affinity configurations stayed within five percentage points of their own single-backend reference.
 
+Across all six comparisons, **2,159 / 2,160 requests completed**. One ordinary-balancing AI Gateway request returned HTTP 408; its cause was not established. The zero-error comparison criterion was therefore unmet. All completed responses have token usage and independent serving-account evidence.
+
 ### What this means for prompt caching
 
-**Stable conversation placement is demonstrated. Additional cache savings from affinity were not established for this configuration.** Ordinary balancing also produced substantial cache reuse. Controlled requests showed cached tokens on the first request to another account endpoint after the same prompt had been sent to b1.
+**Affinity increased warm-turn cached input by about 36-38 percentage points compared with ordinary balancing.** Repeated visits can gradually warm several backends under ordinary balancing; affinity preserves locality from the start of the conversation.
 
-These Global Standard endpoints use service-managed inference placement. The physical cache location was not observable. Cache retention and routing behavior therefore require validation with the intended production model and deployment type.
+Microsoft documents that [prompt caches are isolated between Azure subscriptions](https://learn.microsoft.com/azure/foundry/openai/how-to/prompt-caching#in-memory-prompt-cache-retention). In three controlled trials, first use on each subscription was cold (**9 / 9**), while repeated or returning requests reused cached input in **9 / 12** cases. Local cache matching remains best effort.
+
+An earlier same-subscription control showed prompt-cache reuse across account endpoints. Separate subscriptions provide the documented isolation boundary used in this experiment.
 
 ## How the configurations work
 
@@ -88,6 +92,6 @@ The measurements cover one gateway unit, one model version, and a fixed three-ba
 - **[Sanitized measurement data](results/):** machine-readable evidence behind the results.
 - **[Test specification](SPECIFICATION.md):** objectives and acceptance criteria.
 
-All **seven owned resources** from the published run were deleted, and the dedicated resource group's absence was verified.
+All **eight owned resources** were deleted, and the absence of all **three dedicated resource groups** was verified. The [report](docs/REPORT.md#cost-and-cleanup) and [lifecycle evidence](results/lifecycle.json) record the lab lifetime and cleanup.
 
 No license is specified for the original lab content. Azure service artwork follows the [Azure architecture icon terms](https://learn.microsoft.com/azure/architecture/icons/).

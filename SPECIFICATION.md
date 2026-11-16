@@ -2,7 +2,7 @@
 
 **Purpose:** Scope and acceptance criteria for the laboratory.
 
-**Date:** 12 November 2026  
+**Date:** 16 November 2026
 **Client:** OpenCode CLI
 
 ## 1. Objective
@@ -29,7 +29,9 @@ The [standalone AI Gateway](https://learn.microsoft.com/azure/ai-gateway/overvie
 
 Confirm that OpenCode traffic actually traverses each tested gateway. If a configuration cannot expose the required client path or support the routing behavior, report that limitation. Foundry model router is outside this comparison.
 
-Use the same three backend endpoints for both configurations. Each backend must have the same model, model version, deployment type, and deployment name, hosted in a separate Azure resource. Different backend regions are useful when practical.
+Use the same three backend endpoints for both configurations. Each backend must have the same model, model version, deployment type, and deployment name, hosted in a separate Foundry resource and Azure subscription. Keep the region unchanged across backends to isolate the subscription boundary.
+
+The [prompt-caching guide](https://learn.microsoft.com/azure/foundry/openai/how-to/prompt-caching#in-memory-prompt-cache-retention) states that in-memory prompt caches are not shared between subscriptions. Verify this with fresh identical prompts: first use on each backend, an immediate repeat on that backend, and a return to the first backend.
 
 ## 3. OpenCode and session identification
 
@@ -97,7 +99,7 @@ Stable backend routing increases cache-reuse opportunities. Service-managed work
 
 ## 6. Lab constraints
 
-- Create resources only in a dedicated lab resource group. Apply `purpose=llm-cache-affinity-lab` and `owner=fausto.palma` to the group and taggable resources.
+- Create resources only in a dedicated lab resource group per subscription. Apply `purpose=llm-cache-affinity-lab` and `owner=fausto.palma` to the groups and taggable resources.
 - Use managed identity between the gateway and model backends, with scoped inference permissions and no plaintext model keys.
 - Use the minimum sufficient SKU and quota. Estimate costs before deployment and obtain approval for the spending envelope, particularly Premium tiers or PTU.
 - Save eventual resources and configuration as Bicep or reproducible CLI scripts.

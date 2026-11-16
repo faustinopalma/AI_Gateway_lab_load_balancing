@@ -9,7 +9,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1130.9042,
+    "totalMs": 1311.8984,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -24,7 +24,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1002.8296,
+    "totalMs": 1289.9264000000003,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -39,7 +39,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1138.9029999999998,
+    "totalMs": 1566.4242999999997,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -54,7 +54,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1099.4813000000004,
+    "totalMs": 1319.4334,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -69,7 +69,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1050.5767999999998,
+    "totalMs": 1465.8778000000002,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -84,7 +84,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 986.7188999999998,
+    "totalMs": 1247.1944000000012,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -99,7 +99,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1112.5567,
+    "totalMs": 1034.1785,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -112,9 +112,9 @@
     "complete": true,
     "promptTokens": 10,
     "cachedTokens": 0,
-    "outputTokens": 10,
+    "outputTokens": 11,
     "ttftMs": null,
-    "totalMs": 1170.6095000000005,
+    "totalMs": 1522.9884000000002,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -129,7 +129,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1196.9071999999996,
+    "totalMs": 1101.9814000000006,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -144,7 +144,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1312.7239999999983,
+    "totalMs": 1266.0321000000004,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -159,7 +159,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1129.1521000000012,
+    "totalMs": 1548.6661999999997,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -174,7 +174,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1080.599400000001,
+    "totalMs": 1380.664999999999,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -189,7 +189,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1167.0535,
+    "totalMs": 1095.2520000000004,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -204,7 +204,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1138.8894,
+    "totalMs": 1697.0089000000007,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -219,7 +219,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1146.562399999999,
+    "totalMs": 1201.8261999999995,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -234,7 +234,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 976.7260999999999,
+    "totalMs": 981.340400000001,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -249,7 +249,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1130.1791999999987,
+    "totalMs": 1388.805800000002,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -264,7 +264,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1126.6029999999992,
+    "totalMs": 1155.142200000002,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -279,7 +279,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1033.0308000000005,
+    "totalMs": 1102.2183000000005,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -294,7 +294,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1064.3806000000004,
+    "totalMs": 1907.898299999997,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -309,7 +309,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1037.258600000001,
+    "totalMs": 1218.2920000000013,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -324,7 +324,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 957.4866000000002,
+    "totalMs": 1417.9482000000025,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -339,7 +339,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1312.990099999999,
+    "totalMs": 1620.2652000000016,
     "backend": "b2",
     "attempts": null,
     "resourceLogVerified": true
@@ -354,7 +354,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1030.0961000000025,
+    "totalMs": 1383.8695999999982,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -369,7 +369,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1074.1209999999992,
+    "totalMs": 1186.2225999999973,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -384,7 +384,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 942.005799999999,
+    "totalMs": 1070.1068000000014,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -399,7 +399,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 55756.4593,
+    "totalMs": 1147.7675000000017,
     "backend": "b3",
     "attempts": null,
     "resourceLogVerified": true
@@ -414,7 +414,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1006.0562000000064,
+    "totalMs": 1349.9735,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -428,8 +428,8 @@
     "promptTokens": 10,
     "cachedTokens": 0,
     "outputTokens": 10,
-    "ttftMs": 1370.698000000004,
-    "totalMs": 1460.096399999995,
+    "ttftMs": 1474.5994999999966,
+    "totalMs": 1547.0671000000002,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -444,7 +444,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1084.136599999998,
+    "totalMs": 1003.0757000000012,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true
@@ -459,7 +459,7 @@
     "cachedTokens": 0,
     "outputTokens": 10,
     "ttftMs": null,
-    "totalMs": 1276.7133999999933,
+    "totalMs": 1123.6300000000047,
     "backend": "b1",
     "attempts": null,
     "resourceLogVerified": true

@@ -24,11 +24,40 @@ function Save-LabState {
 
 function Assert-LabScope {
     param([Parameter(Mandatory)]$State)
-    $group = Invoke-AzJson @('group', 'show', '--subscription', $State.subscription, '--name', $State.resourceGroup)
-    if ($group.tags.labId -ne $State.labId -or $group.tags.purpose -ne 'llm-cache-affinity-lab') {
-        throw 'Resource group ownership tags do not match the local lab manifest.'
+    $primary = $null
+    foreach ($scope in @(Get-LabGroups $State)) {
+        $group = Invoke-AzJson @('group', 'show', '--subscription', $scope.subscription, '--name', $scope.resourceGroup)
+        if ($group.tags.labId -ne $State.labId -or $group.tags.purpose -ne 'llm-cache-affinity-lab' -or
+            $group.tags.owner -ne $State.owner) {
+            throw 'Resource group ownership tags do not match the local lab manifest.'
+        }
+        if ($scope.subscription -eq $State.subscription -and $scope.resourceGroup -eq $State.resourceGroup) {
+            $primary = $group
+        }
     }
-    return $group
+    if (-not $primary) { throw 'The primary lab group is missing from the manifest.' }
+    return $primary
+}
+
+function Get-LabGroups {
+    param([Parameter(Mandatory)]$State)
+    if ($State.groups) { return $State.groups }
+    return @(@{ subscription=$State.subscription; resourceGroup=$State.resourceGroup })
+}
+
+function Assert-LabResources {
+    param([Parameter(Mandatory)]$State, [AllowEmptyCollection()][object[]]$Resources)
+    foreach ($resource in $Resources) {
+        $known = @($State.expectedRoots | Where-Object {
+            $resource.id.Equals($_, [StringComparison]::OrdinalIgnoreCase) -or
+            $resource.id.StartsWith("$_/", [StringComparison]::OrdinalIgnoreCase)
+        })
+        if ($known.Count -eq 0) { throw "Unrecognized resource in lab group; cleanup stopped: $($resource.type)." }
+        if ($resource.tags.purpose -ne 'llm-cache-affinity-lab' -or $resource.tags.owner -ne $State.owner -or
+            $resource.tags.labId -ne $State.labId) {
+            throw "Resource ownership tags do not match the lab manifest; cleanup stopped: $($resource.type)."
+        }
+    }
 }
 
 function Write-PrivateJson {

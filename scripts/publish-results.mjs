@@ -19,7 +19,7 @@ function metrics(record) {
 }
 const summaryFields = [
   'run', 'gateway', 'scenario', 'workers', 'turns', 'rpm', 'sessionHeadersSent', 'affinityEnabled',
-  'requests', 'completed', 'failed', 'sessions', 'usageCoverage', 'backendCoverage', 'resourceLogCoverage',
+  'requests', 'completed', 'failed', 'sessions', 'usageCoverage', 'backendCoverage', 'resourceLogCoverage', 'completedResourceLogCoverage',
   'sessionsWithKnownBackend', 'sessionsSwitchingBackend', 'sessionDistribution', 'requestDistribution',
   'initialSessionDistribution', 'expectedFirstAttemptRatio', 'attemptCoverage', 'retriedRequests',
   'cacheRatio', 'warmCacheRatio', 'inputTokens', 'cachedTokens', 'outputTokens', 'byTurn',
@@ -88,7 +88,7 @@ await save('native-edge-checks.json', nativeEdges.map(record => ({
   ...pick(record, ['name', 'expectedStatus', 'passed']), ...metrics(record),
 })));
 await save('cache-scope.json', (await read(resolve('.lab', 'enriched', 'cache-scope.json'))).map(record => ({
-  trial: record.trial, intendedBackend: record.intendedBackend, ...metrics(record),
+  ...pick(record, ['trial', 'step', 'intendedBackend']), ...metrics(record),
 })));
 
 const clients = [];
@@ -130,6 +130,9 @@ const inventory = await read(resolve('.lab', 'inventory-before-cleanup.json'));
 await save('lifecycle.json', {
   startedUtc: state.startedUtc, cleanedUtc: state.cleanedUtc ?? null,
   cleanupVerified: state.cleanupVerified === true,
+  backendResourceKind: state.backendKind ?? 'OpenAI',
+  backendSubscriptionCount: new Set(state.backends.map(backend => backend.id.split('/')[2].toLowerCase())).size,
+  resourceGroupCount: state.groups?.length ?? 1,
   inventoriedResources: inventory.map(resource => ({
     type: resource.type, purposeTagVerified: resource.tags.purpose === 'llm-cache-affinity-lab',
     ownerTagVerified: resource.tags.owner === state.owner,

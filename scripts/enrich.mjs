@@ -39,8 +39,11 @@ for (const entry of await readdir(resolve('.lab', 'runs'), { withFileTypes: true
   const folder = resolve('.lab', 'enriched', entry.name);
   await mkdir(folder, { recursive: true });
   await writeFile(resolve(folder, 'requests.jsonl'), records.map(record => JSON.stringify(record)).join('\n') + '\n');
+  const completed = records.filter(record => record.complete);
   const summary = { ...original, ...summarize(records),
-    resourceLogCoverage: records.filter(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log').length / records.length };
+    resourceLogCoverage: records.filter(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log').length / records.length,
+    completedResourceLogCoverage: completed.length
+      ? completed.filter(record => record.backendEvidence === 'Azure OpenAI resource diagnostic log').length / completed.length : null };
   await writeFile(resolve(folder, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
   summaries.push(summary);
 }

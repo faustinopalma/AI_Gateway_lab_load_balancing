@@ -4,7 +4,7 @@ import { sessionHeader, backendIndex, summarize } from '../scripts/routing.mjs';
 import { parseEvent } from '../scripts/measure.mjs';
 import { callModel } from '../scripts/measure.mjs';
 import { createServer } from 'node:http';
-import { validateComparisons } from '../scripts/validate-results.mjs';
+import { validateComparisons, validateCacheIsolation } from '../scripts/validate-results.mjs';
 
 test('session identifiers must agree and preserve opaque case-sensitive values', () => {
   assert.equal(sessionHeader(new Headers()), null);
@@ -40,7 +40,7 @@ test('cache aggregation is token-weighted and unknown usage or routing is expose
 
 test('comparison acceptance requires configured affinity and independently verified routing', () => {
   const comparisons = ['apim', 'aigateway'].flatMap(gateway => ['single', 'balanced', 'sticky'].map(scenario => ({
-    gateway, scenario, requests: 360, completed: 360, sessions: 60, usageCoverage: 1, resourceLogCoverage: 1,
+    gateway, scenario, requests: 360, completed: 360, failed: 0, sessions: 60, usageCoverage: 1, resourceLogCoverage: 1,
     affinityEnabled: scenario === 'sticky', sessionsSwitchingBackend: scenario === 'balanced' ? 60 : 0,
     requestDistribution: scenario === 'single' ? { b1: 360 } : { b1: 120, b2: 120, b3: 120 },
     initialSessionDistribution: { b1: 20, b2: 20, b3: 20 }, warmCacheRatio: 0.91,
@@ -56,6 +56,16 @@ test('comparison acceptance requires configured affinity and independently verif
   const unstable = structuredClone(comparisons);
   unstable[5].sessionsSwitchingBackend = 1;
   assert.throws(() => validateComparisons(unstable), /healthy sessions changed backend/);
+  const interrupted = structuredClone(comparisons);
+  interrupted[1].completed = 359;
+  interrupted[1].failed = 1;
+  interrupted[1].resourceLogCoverage = 359 / 360;
+  interrupted[1].completedResourceLogCoverage = 1;
+  const result = validateComparisons(interrupted);
+  assert.equal(result.passed, false);
+  assert.equal(result.completed, 2159);
+  assert.equal(result.failed, 1);
+  assert.match(result.issues[0], /1 of 360 requests did not complete/);
 });
 
 test('SSE usage, generated content, terminal completion, and errors stay distinct', () => {
@@ -65,6 +75,22 @@ test('SSE usage, generated content, terminal completion, and errors stay distinc
   assert.equal(parseEvent('{"choices":[{"delta":{},"finish_reason":"stop"}]}').finished, true);
   assert.equal(parseEvent('{"usage":{"prompt_tokens":2048},"choices":[]}').usage.prompt_tokens, 2048);
   assert.equal(parseEvent('{"error":{"code":"server_error"}}').error.code, 'server_error');
+});
+
+test('cache isolation requires cold first use, local reuse and independent serving evidence', () => {
+  const probes = [1, 2, 3].flatMap(trial => ['b1', 'b1', 'b2', 'b2', 'b3', 'b3', 'b1'].map((backend, step) => ({
+    trial, step: step + 1, backend, intendedBackend: backend, complete: true, resourceLogVerified: true,
+    promptTokens: 5200, cachedTokens: [0, 2, 4].includes(step) ? 0 : 4992,
+  })));
+  assert.equal(validateCacheIsolation(probes).passed, true);
+  const shared = structuredClone(probes);
+  shared[2].cachedTokens = 4992;
+  assert.throws(() => validateCacheIsolation(shared), /first use was not cold/);
+  const unverified = structuredClone(probes);
+  unverified[2].resourceLogVerified = false;
+  assert.throws(() => validateCacheIsolation(unverified), /missing independent backend evidence/);
+  const cold = structuredClone(probes).map(record => ({ ...record, cachedTokens: 0 }));
+  assert.throws(() => validateCacheIsolation(cold), /no local cache reuse/);
 });
 
 test('network-fragmented CRLF SSE retains usage and requires terminal completion', async () => {
