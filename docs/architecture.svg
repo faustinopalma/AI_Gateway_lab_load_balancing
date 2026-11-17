@@ -77,7 +77,7 @@
     <use id="aigateway-service-icon" href="#azure-aigateway-icon" x="390" y="377" width="50" height="50"/>
     <text class="heading" x="452" y="396">Azure AI Gateway</text>
     <text class="small" x="452" y="419">Standard preview | Sub 1</text>
-    <text class="body" x="390" y="452">Native session affinity</text>
+    <text id="aigateway-affinity-label" class="body" x="390" y="452">Built-in affinity, configured</text>
   </g>
   <g id="backends" inkscape:label="Three Foundry resources in separate subscriptions">
     <rect class="box" x="792" y="176" width="264" height="344" rx="14" fill="#f7fafc" stroke="#b9c9d8"/>

@@ -2,7 +2,7 @@
 
 **Both gateways achieved conversation affinity and preserved prompt-cache reuse across three subscription-isolated backends.** Warm-turn cached input reached **91.87% through APIM** and **90.25% through standalone AI Gateway**, versus **53.68%** and **54.48%** with ordinary balancing. Both affinity cases completed all 360 requests with zero backend changes within conversations.
 
-APIM implements this through its configurable policy engine; standalone AI Gateway provides native header-based affinity. Recovery measurements and the current preview scope are detailed below.
+APIM implements this through its configurable policy engine; standalone AI Gateway uses a built-in affinity mechanism explicitly enabled and configured on the model alias. Recovery measurements and the current preview scope are detailed below.
 
 ## The routing problem
 
@@ -50,25 +50,36 @@ The [illustrated policy walkthrough](APIM-POLICY.md) follows the session identif
 
 ## Configuration 2: standalone Azure AI Gateway
 
-The standalone gateway implements affinity directly on a **model alias**. An alias gives the client one model name backed by several compatible model registrations.
+The standalone gateway provides a built-in affinity mechanism configured on a **model alias**. An alias gives the client one model name backed by several compatible model registrations. **The lab explicitly enables session-based routing and specifies how to obtain the session key.** The term *native affinity* refers to the gateway's built-in backend-affinity implementation.
 
 Workspace `default` contains providers `b1`, `b2`, and `b3`, each registering its deployment as `lab-chat`. Alias **gpt-5-nano-sticky** includes these registrations at priority **0**, weight **1**, with automatic model selection disabled.
 
-Its session key uses this Common Expression Language (CEL) expression:
-
-```cel
-'x-opencode-session' in request.headers ? request.headers['x-opencode-session'][0] : ''
-```
-
-Header names are lowercase and values are lists; `[0]` reads the supplied value. The expression returns an empty string when the header is absent, allowing ordinary balancing.
-
-**Where it is applied:** on the alias, `properties.sessionBackendPreference.key` contains the expression wrapped in `@cel(...)`, and `properties.selectionOrder` is:
+**Where it is applied:** on alias `gpt-5-nano-sticky`, the setup script saves these ARM properties:
 
 ```json
-["sessionBackendPreference", "priority"]
+{
+  "properties": {
+    "sessionBackendPreference": {
+      "key": "@cel('x-opencode-session' in request.headers ? request.headers['x-opencode-session'][0] : '')"
+    },
+    "selectionOrder": ["sessionBackendPreference", "priority"]
+  }
+}
 ```
 
-In the AI Gateway portal, edit this alias, enable **Session affinity**, enter the expression, and choose **Session affinity before priority**. [Set-AiGateway.ps1](../scripts/Set-AiGateway.ps1) creates the configuration through Azure CLI and ARM, then reads it back to verify persistence.
+`sessionBackendPreference.key` contains a Common Expression Language (CEL) expression that extracts the conversation identifier. Header names are lowercase and values are lists; `[0]` reads the supplied value. If the header is absent, the expression returns an empty string and the gateway uses ordinary balancing. `selectionOrder` places affinity before priority.
+
+### Which part is configuration, and which part is routing logic?
+
+| Responsibility | APIM in this lab | Standalone AI Gateway in this lab |
+|---|---|---|
+| Obtain the conversation identifier | XML policy reads and validates the session headers. | An alias-level CEL expression reads `x-opencode-session`. |
+| Select a preferred backend consistently | Custom policy expressions calculate SHA-256, modulo three, and the backend name. | The gateway's built-in affinity mechanism uses the extracted key. |
+| Apply the configuration | The setup script saves API policies. | The setup script saves alias properties. |
+
+The CEL expression produces only a key. AI Gateway performs the backend mapping internally; the lab supplies no custom hash or backend-selection algorithm for this route. The PowerShell script runs during setup. At runtime, the gateway evaluates the saved expression and applies its routing mechanism to each request.
+
+In the AI Gateway portal, edit this alias, enable **Session affinity**, specify the session-key expression, and choose **Session affinity before priority**. The JSON above shows the ARM representation, including its `@cel(...)` wrapper. [Set-AiGateway.ps1](../scripts/Set-AiGateway.ps1) creates the configuration through Azure CLI and ARM, then reads it back to verify persistence.
 
 The client calls `/default/models/openai/v1/chat/completions` with `model: "gpt-5-nano-sticky"`. OpenCode's normal model setting is `lab/gpt-5-nano-sticky`; its provider configuration supplies the gateway URL and credential. This alias reads `x-opencode-session` exclusively; APIM additionally validates the other supported session headers.
 
@@ -167,7 +178,7 @@ The lab qualifies one gateway unit, one model version, and a fixed three-backend
 
 Monitor session placement, backend load, cached-token ratios, first-token latency, errors, and recovery. Alert on unexpected healthy-session switches, sustained 429/5xx responses, and significant latency or cache-ratio deviations from baseline. A heavily used conversation concentrates work on its preferred backend; size for hot sessions and spare outage capacity. Namespace production routing keys by authenticated tenant and model route when serving multiple callers.
 
-Cookie affinity requires client cookie handling. Semantic response caching reuses answers, and model routing selects models; conversation affinity controls backend placement. APIM supplies the tested custom validation and bounded recovery controls. Native AI Gateway supplies the tested header-based placement, with the preview recovery boundary requiring separate production qualification.
+Cookie affinity requires client cookie handling. Semantic response caching reuses answers, and model routing selects models; conversation affinity controls backend placement. APIM supplies the tested custom validation and bounded recovery controls. Standalone AI Gateway supplies the tested placement through its explicitly configured built-in affinity, with the preview recovery boundary requiring separate production qualification.
 
 ## Cost and cleanup
 

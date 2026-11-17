@@ -46,11 +46,13 @@ Both gateways authenticate to models using managed identity. Model API-key authe
 |---|---|---|
 | `single` | Prefer backend b1. | Alias with backend b1. |
 | `balanced` | Equal-weight backend pool. | Equal-weight, equal-priority alias. |
-| `sticky` | Policy hashes model and session identifier. | Alias enables native session affinity from `x-opencode-session`. |
+| `sticky` | Policy hashes model and session identifier. | Built-in affinity explicitly enabled on the alias, with a CEL expression extracting `x-opencode-session`. |
 
 APIM APIs expose `/{case}/openai/v1/chat/completions`. Backend entities are `b1`, `b2`, and `b3`; endpoint named values are `lab-endpoint-b1` through `lab-endpoint-b3`. API-level templates are in [policies](../policies/).
 
-Standalone routing is in workspace `default`, providers `b1`/`b2`/`b3`, registration `lab-chat`, and aliases `gpt-5-nano-{case}`. Requests use `/default/models/openai/v1/chat/completions`, with the alias in `model`. [Set-AiGateway.ps1](../scripts/Set-AiGateway.ps1) sets and verifies `properties.sessionBackendPreference.key` and `properties.selectionOrder` through ARM.
+Standalone routing is in workspace `default`, providers `b1`/`b2`/`b3`, registration `lab-chat`, and aliases `gpt-5-nano-{case}`. Requests use `/default/models/openai/v1/chat/completions`, with the alias in `model`. For the sticky alias, [Set-AiGateway.ps1](../scripts/Set-AiGateway.ps1) sets and verifies `properties.sessionBackendPreference.key` and `properties.selectionOrder` through ARM.
+
+The script saves these settings during setup. On each runtime request, the gateway evaluates the CEL expression to obtain the session key and uses its built-in affinity mechanism to select the preferred backend. Header choice is part of the explicit alias configuration. See the [exact settings and comparison with APIM policy logic](REPORT.md#configuration-2-standalone-azure-ai-gateway).
 
 OpenCode examples: [APIM](../examples/opencode-apim.json) and [AI Gateway](../examples/opencode-aigateway.json). Set `providers.lab.settings.baseURL`, the gateway credential reference, and `model`. Keep the Chat Completions provider package shown in the examples.
 

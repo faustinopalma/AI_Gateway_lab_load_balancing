@@ -62,11 +62,13 @@ Start with the [illustrated policy walkthrough](docs/APIM-POLICY.md) to follow `
 
 ### Standalone AI Gateway: native affinity on a model alias
 
-A model alias exposes one model name backed by several registered deployments. The alias uses `x-opencode-session` as its native affinity key, with **session affinity evaluated before priority**. With an unchanged backend set, the same key retains the same preferred backend.
+**AI Gateway provides a built-in affinity mechanism that we explicitly enabled and configured on the model alias.** An alias exposes one model name backed by several registered deployments. Our configuration tells the gateway to extract the conversation identifier from `x-opencode-session` using a short Common Expression Language (CEL) expression and to evaluate **session affinity before priority**.
 
-All three registrations have equal priority and weight. A request without the session header uses ordinary balancing. The alias reads that one header; APIM additionally checks agreement between the four supported session headers.
+The CEL expression returns the session key; AI Gateway handles backend selection and affinity internally. APIM's XML policy implements the backend mapping itself through SHA-256 and modulo three. In both cases, the lab explicitly configures conversation-based routing.
 
-Implementation: [AI Gateway setup script](scripts/Set-AiGateway.ps1). The [detailed configuration](docs/REPORT.md#configuration-2-standalone-azure-ai-gateway) includes the expression, alias properties, and portal settings.
+All three registrations have equal priority and weight. With an unchanged backend set, the same key retains the same preferred backend. A request without the session header uses ordinary balancing. The configured alias reads that one header; APIM additionally checks agreement between the four supported session headers.
+
+Implementation: [AI Gateway setup script](scripts/Set-AiGateway.ps1). It saves the alias settings during setup; the gateway evaluates them on each request. The [detailed configuration](docs/REPORT.md#configuration-2-standalone-azure-ai-gateway) includes the exact properties and portal settings.
 
 ## Recovery and client compatibility
 
