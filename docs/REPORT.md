@@ -46,6 +46,8 @@ Normal responses stream without buffering. A separate transport-error recovery b
 
 **Where it is applied:** API-level policies on `single`, `balanced`, and `sticky`; backend entities `b1`, `b2`, and `b3`; pool `pool`; endpoint named values `lab-endpoint-b1` through `lab-endpoint-b3`. The client route is `/sticky/openai/v1/chat/completions`. [Policy templates](../policies/) and [the setup script](../scripts/Set-Apim.ps1) contain the implementation.
 
+The [illustrated policy walkthrough](APIM-POLICY.md) follows the session identifier through the exact routing expressions, with a worked example and a separate explanation of recovery and lab instrumentation.
+
 ## Configuration 2: standalone Azure AI Gateway
 
 The standalone gateway implements affinity directly on a **model alias**. An alias gives the client one model name backed by several compatible model registrations.

@@ -58,7 +58,7 @@ APIM's policy engine combines conversation identification, validation, backend s
 
 Missing session headers use random backend selection. Conflicting or malformed identifiers receive HTTP 400. Recoverable errors before streaming begins can trigger another backend attempt, up to three attempts in total. This configurability supplied the controls needed for the tested routing and recovery requirements.
 
-Implementation: [APIM policy templates](policies/) and [setup script](scripts/Set-Apim.ps1).
+Start with the [illustrated policy walkthrough](docs/APIM-POLICY.md) to follow `session -> home -> selected-backend`. Implementation: [APIM policy templates](policies/) and [setup script](scripts/Set-Apim.ps1).
 
 ### Standalone AI Gateway: native affinity on a model alias
 

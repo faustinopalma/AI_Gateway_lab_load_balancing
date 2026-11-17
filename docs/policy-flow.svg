@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="1280" height="820" viewBox="0 0 1280 820">
+  <title>APIM session-affinity policy: session to home to backend</title>
+  <desc>The healthy-request path reads the OpenCode session identifier and model, hashes the routing key, and selects a preferred Foundry backend. The example ses_example_A with gpt-5-nano produces home 2 and selects b3. Separate supporting blocks handle validation, managed identity, bounded recovery, and lab diagnostics. All connectors are straight. Azure service icons retain the original artwork used in the lab architecture diagram.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#0078d4"/></marker>
+    <marker id="alternative-arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,4 L0,8 Z" fill="#7c8b9b"/></marker>
+    <symbol id="azure-apim-icon" viewBox="0 0 18 18">
+      <defs>
+        <linearGradient id="apim-cloud" x1="9" y1="16.82" x2="9" y2="1.18" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#198ab3"/><stop offset="0.09" stop-color="#1f9dc4"/><stop offset="0.24" stop-color="#28b5d9"/><stop offset="0.4" stop-color="#2dc6e9"/><stop offset="0.57" stop-color="#31d1f2"/><stop offset="0.78" stop-color="#32d4f5"/></linearGradient>
+        <linearGradient id="apim-node" x1="8.36" y1="11.35" x2="8.36" y2="14.46" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#c69aeb"/><stop offset="1" stop-color="#6f4bb2"/></linearGradient>
+      </defs>
+      <path d="M14.18,5.89A4.85,4.85,0,0,0,9.23,1.18,5,5,0,0,0,4.48,4.47,4.61,4.61,0,0,0,.5,9,4.67,4.67,0,0,0,5.29,13.5a3,3,0,0,0,.42,0h1.2a1.47,1.47,0,0,1-.11-.56v0A1.51,1.51,0,0,1,7,12.21H5.6l-.31,0A3.41,3.41,0,0,1,1.77,9,3.33,3.33,0,0,1,4.68,5.73l.76-.12.25-.73A3.73,3.73,0,0,1,9.23,2.45,3.6,3.6,0,0,1,12.91,5.9V7L14,7.15a2.59,2.59,0,0,1,2.26,2.49,2.63,2.63,0,0,1-2.62,2.54h-.15l-.08,0h-1A3.92,3.92,0,0,0,8.54,9a.64.64,0,1,0,0,1.27,2.65,2.65,0,0,1,0,5.29.64.64,0,1,0,0,1.27,3.92,3.92,0,0,0,3.87-3.34h1.05a.64.64,0,0,0,.2,0A3.91,3.91,0,0,0,17.5,9.64,3.86,3.86,0,0,0,14.18,5.89Z" fill="url(#apim-cloud)"/>
+      <rect x="6.8" y="11.35" width="3.12" height="3.12" rx="1.54" fill="url(#apim-node)"/>
+    </symbol>
+    <symbol id="azure-foundry-icon" viewBox="0 0 18 18">
+      <defs>
+        <linearGradient id="foundry-1" x1="10.91" y1="13.66" x2="13.62" y2="13.66" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#302ec9"/><stop offset=".12" stop-color="#151698"/><stop offset=".25" stop-color="#0a0b7e"/><stop offset=".43" stop-color="#090c7f"/><stop offset=".51" stop-color="#141698"/><stop offset=".61" stop-color="#282ac4"/><stop offset=".77" stop-color="#8e8ff4"/><stop offset=".85" stop-color="#a7a6f7"/><stop offset=".91" stop-color="#cacafb"/><stop offset="1" stop-color="#fff"/></linearGradient>
+        <linearGradient id="foundry-2" x1="12.26" y1="8.32" x2="12.26" y2="18.23" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset=".02" stop-color="#201ba6"/><stop offset=".64" stop-color="#2d29c7"/><stop offset="1" stop-color="#201ba6"/></linearGradient>
+        <linearGradient id="foundry-3" x1="14.19" y1="8.27" x2="14.19" y2="14.47" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3530c3"/><stop offset=".5" stop-color="#6d71d1"/><stop offset=".97" stop-color="#c0bff5"/><stop offset="1" stop-color="#e3e4ff"/></linearGradient>
+        <linearGradient id="foundry-4" x1="6.51" y1="3" x2="6.51" y2="19.15" gradientTransform="translate(0 20) scale(1 -1)" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#302ec9"/><stop offset=".45" stop-color="#302ec9"/><stop offset=".95" stop-color="#cacafb"/><stop offset="1" stop-color="#7f7eaf"/></linearGradient>
+      </defs>
+      <path d="M11.96,11.68s.07-.1.07-.24v-3.87c0-.85.66-1.76,1.59-2.03-.06-.19-.64-2.11-.81-2.65-.17-.56-.67-1.9-1.29-1.9,0,0,0,0-.01,0h0s-.09.05-.13.13c-.32.58-.46,3.02-.46,4.84v2.26c.27.97.91,3.22.96,3.35,0,0,.05.1.09.1h0Z" fill="url(#foundry-1)"/>
+      <path d="M11.96,11.68s.07-.1.07-.24v-3.87c0-.85.66-1.76,1.59-2.03-.06-.19-.64-2.11-.81-2.65-.17-.56-.67-1.9-1.29-1.9,0,0,0,0-.01,0h0s-.09.05-.13.13c-.32.58-.46,3.02-.46,4.84v2.26c.27.97.91,3.22.96,3.35,0,0,.05.1.09.1h0Z" fill="url(#foundry-2)"/>
+      <path d="M16.01,5.46h-1.81c-1.21,0-2.17,1.09-2.17,2.11v3.87c0,.14-.04.24-.07.24s-.09-.1-.09-.1c0,0,.07.21.17.21h1.98c.62,0,2.48-.61,2.48-2.52v-3.25c0-.41-.24-.55-.49-.55Z" fill="url(#foundry-3)"/>
+      <path d="M2.34,17h5.38c2.35,0,3.2-2.03,3.2-3.81v-7.23c0-2.08.19-4.97.61-4.97h-3.23c-.77,0-1.43.82-2.18,2.48-.75,1.66-4.36,11.87-4.52,12.36-.26.79-.02,1.16.74,1.16Z" fill="url(#foundry-4)"/>
+    </symbol>
+    <style>
+      text { font-family: Arial, sans-serif; fill: #18304a; }
+      .title { font-size: 30px; font-weight: bold; }
+      .heading { font-size: 20px; font-weight: bold; }
+      .body { font-size: 18px; }
+      .small { font-size: 16px; }
+      .mono { font-family: Consolas, monospace; font-size: 16px; }
+      .box { stroke-width: 1.6; }
+      .flow { stroke: #0078d4; stroke-width: 2.6; marker-end: url(#arrow); }
+      .alternative { stroke: #7c8b9b; stroke-width: 1.7; stroke-dasharray: 5 5; marker-end: url(#alternative-arrow); }
+    </style>
+  </defs>
+  <rect id="page" width="1280" height="820" fill="#f6f9fc"/>
+  <text id="title" class="title" x="40" y="46">How APIM keeps a conversation on one backend</text>
+  <text id="subtitle" class="body" x="40" y="78">Same model and session identifier produce the same preferred backend.</text>
+  <g id="routing" inkscape:label="Core routing">
+    <rect x="32" y="104" width="1216" height="430" rx="16" fill="#ffffff" stroke="#d4dee8"/>
+    <use href="#azure-apim-icon" x="52" y="122" width="38" height="38"/>
+    <text id="route" class="heading" x="104" y="148">APIM /sticky/openai/v1/chat/completions</text>
+    <text id="core-label" class="small" x="60" y="194">CORE ROUTING: session -&gt; home -&gt; selected-backend</text>
+    <g id="read-session" inkscape:label="Read session">
+      <rect class="box" x="60" y="226" width="230" height="150" rx="10" fill="#edf5ff" stroke="#7ca9d4"/>
+      <text id="session-title" class="heading" x="78" y="256">1. Read the session</text>
+      <text id="session-header" class="mono" x="78" y="286">x-opencode-session</text>
+      <text id="session-value" class="mono" x="78" y="314">ses_example_A</text>
+      <text id="session-model" class="small" x="78" y="344">model: gpt-5-nano</text>
+    </g>
+    <g id="compute-home" inkscape:label="Compute preferred backend">
+      <rect class="box" x="338" y="226" width="300" height="150" rx="10" fill="#edf5ff" stroke="#7ca9d4"/>
+      <text id="home-title" class="heading" x="356" y="256">2. Compute home</text>
+      <text id="hash" class="body" x="356" y="286">SHA-256 of routing key</text>
+      <text id="hash-bytes" class="body" x="356" y="314">First 32 bits, unsigned</text>
+      <text id="home-value" class="mono" x="356" y="344">home = number % 3 = 2</text>
+    </g>
+    <g id="select-backend" inkscape:label="Apply backend selection">
+      <rect class="box" x="686" y="226" width="240" height="150" rx="10" fill="#edf5ff" stroke="#7ca9d4"/>
+      <text id="selection-title" class="heading" x="704" y="256">3. Select backend</text>
+      <text id="selection-number" class="small" x="704" y="286">First attempt: home + 1</text>
+      <text id="selection-value" class="mono" x="704" y="314">selected-backend = b3</text>
+      <text id="selection-policy" class="small" x="704" y="344">set-backend-service</text>
+    </g>
+    <g id="backend-b1" inkscape:label="Foundry backend b1">
+      <rect class="box" x="1000" y="164" width="216" height="80" rx="10" fill="#f7fafc" stroke="#b9c9d8"/>
+      <use href="#azure-foundry-icon" x="1016" y="186" width="36" height="36"/>
+      <text id="backend-b1-title" class="heading" x="1064" y="195">b1 | Foundry 1</text>
+      <text id="backend-b1-sub" class="small" x="1064" y="219">Subscription 1</text>
+    </g>
+    <g id="backend-b2" inkscape:label="Foundry backend b2">
+      <rect class="box" x="1000" y="274" width="216" height="80" rx="10" fill="#f7fafc" stroke="#b9c9d8"/>
+      <use href="#azure-foundry-icon" x="1016" y="296" width="36" height="36"/>
+      <text id="backend-b2-title" class="heading" x="1064" y="305">b2 | Foundry 2</text>
+      <text id="backend-b2-sub" class="small" x="1064" y="329">Subscription 2</text>
+    </g>
+    <g id="backend-b3" inkscape:label="Preferred Foundry backend b3">
+      <rect class="box" x="1000" y="384" width="216" height="80" rx="10" fill="#e1efff" stroke="#0078d4"/>
+      <use href="#azure-foundry-icon" x="1016" y="406" width="36" height="36"/>
+      <text id="backend-b3-title" class="heading" x="1064" y="415">b3 | Foundry 3</text>
+      <text id="backend-b3-sub" class="small" x="1064" y="439">Subscription 3</text>
+    </g>
+    <line id="session-to-home" class="flow" x1="290" y1="301" x2="338" y2="301"/>
+    <line id="home-to-selection" class="flow" x1="638" y1="301" x2="686" y2="301"/>
+    <line id="choice-b1" class="alternative" x1="926" y1="301" x2="1000" y2="204"/>
+    <line id="choice-b2" class="alternative" x1="926" y1="301" x2="1000" y2="314"/>
+    <line id="choice-b3" class="flow" x1="926" y1="301" x2="1000" y2="424"/>
+    <text id="same-session" class="body" x="60" y="496">Turn 1, turn 2, turn 3: the same session keeps home = 2 and prefers b3.</text>
+    <text id="legend" class="small" x="1000" y="496">Blue: this example</text>
+  </g>
+  <text id="support-label" class="heading" x="40" y="574">The remaining policy blocks</text>
+  <g id="input-controls" inkscape:label="Input and identity">
+    <rect class="box" x="32" y="594" width="384" height="170" rx="12" fill="#ffffff" stroke="#d4dee8"/>
+    <text id="input-title" class="heading" x="54" y="624">Validate and prepare</text>
+    <text id="missing-session" class="small" x="54" y="654">Missing headers: random backend</text>
+    <text id="invalid-session" class="small" x="54" y="681">Invalid or conflicting values: HTTP 400</text>
+    <text id="identity" class="small" x="54" y="708">Managed identity; model API route</text>
+    <text id="client-key" class="small" x="54" y="735">Client key removed before forwarding</text>
+  </g>
+  <g id="recovery-controls" inkscape:label="Pre-response recovery">
+    <rect class="box" x="448" y="594" width="384" height="170" rx="12" fill="#ffffff" stroke="#d4dee8"/>
+    <text id="recovery-title" class="heading" x="470" y="624">Recover before streaming</text>
+    <text id="retry-status" class="small" x="470" y="654">429 / 5xx: try the next backend</text>
+    <text id="attempt-limit" class="small" x="470" y="681">At most three attempts in total</text>
+    <text id="return-home" class="small" x="470" y="708">Next request starts at home again</text>
+    <text id="buffered-recovery" class="small" x="470" y="735">Transport recovery buffers its response</text>
+  </g>
+  <g id="diagnostic-controls" inkscape:label="Lab diagnostics">
+    <rect class="box" x="864" y="594" width="384" height="170" rx="12" fill="#ffffff" stroke="#d4dee8"/>
+    <text id="diagnostic-title" class="heading" x="886" y="624">Observe each request</text>
+    <text id="backend-header" class="small" x="886" y="654">x-lab-backend: selected backend</text>
+    <text id="attempt-header" class="small" x="886" y="681">x-lab-attempts: attempt count</text>
+    <text id="correlation" class="small" x="886" y="708">Request IDs support log correlation</text>
+    <text id="streaming" class="small" x="886" y="735">Healthy responses stream unbuffered</text>
+  </g>
+  <text id="scope" class="small" x="40" y="800">Fixed backend set: b1 / b2 / b3. Affinity preserves locality; cache hits remain best effort.</text>
+</svg>
